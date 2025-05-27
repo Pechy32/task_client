@@ -8,6 +8,8 @@ import {
   Navigate,
 } from "react-router-dom";
 
+import TaskIndex from "./TaskIndex.js";
+
 function App() {
   return (
     <Router>
@@ -23,14 +25,14 @@ function App() {
               <Link to={"/solvers"} className="nav-link">
                 Solvers
               </Link>
-            </li>           
+            </li>
           </ul>
         </nav>
 
         <Routes>
           <Route index element={<Navigate to={"/tasks"} />} />
           <Route path="/tasks">
-            <Route index element={"<TaskIndex />"} />
+            <Route index element={<TaskIndex/>} />
             <Route path="show/:id" element={"<TaskDetail />"} />
             <Route path="create" element={"<TaskForm />"} />
             <Route path="edit/:id" element={"<TaskForm />"} />
@@ -42,7 +44,7 @@ function App() {
             <Route path="show/:id" element={"<SolverDetail />"} />
             <Route path="create" element={"<SolverForm />"} />
             <Route path="edit/:id" element={"<SolverForm />"} />
-          </Route>         
+          </Route>
         </Routes>
       </div>
     </Router>
