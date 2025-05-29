@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Card from './components/card/Card.js';
 import { apiGet, apiPut } from './utils/api.js';
+import './TaskIndex.css'
 
 const TaskIndex = () => {
   const [tasks, setTasks] = useState([]);

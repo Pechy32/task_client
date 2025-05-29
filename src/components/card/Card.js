@@ -15,7 +15,7 @@ const Card = ({
   created,
   notes,
   completition,
-  onUpdate, // Callback pro změny
+  onUpdate,
 }) => {
   const [flipped, setFlipped] = useState(false);
   const [localDueDate, setLocalDueDate] = useState(dueDate ? new Date(dueDate) : null);
@@ -39,7 +39,7 @@ const Card = ({
             <h5 className="task-card-title">{title}</h5>
           </div>
 
-          <div className="task-card-body scrollable">
+          <div className="task-card-body">
             <div onClick={handleFlip} className='task-card-icon' />
 
             <Row>
@@ -127,7 +127,7 @@ const Card = ({
             <h5 className="task-card-title">{title}</h5>
           </div>
 
-          <div className="task-card-body scrollable">
+          <div className="task-card-body">
             <div onClick={handleFlip} className='task-card-icon' />
 
             <p>{description}</p>
