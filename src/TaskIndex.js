@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Card from './components/card/Card.js';
-import { apiGet, apiPut, apiPost } from './utils/api.js';
+import { apiGet, apiPut, apiPost, apiDelete } from './utils/api.js';
 import './TaskIndex.css';
 import { Button, Modal, Form } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
@@ -68,14 +68,7 @@ const TaskIndex = () => {
       setTasks((prevTasks) =>
         prevTasks.map((task) => {
           if (task._id === taskId) {
-            const updatedTask = { ...updatedTaskFromServer };
-            if (updatedFields.dueDate) {
-              updatedTask.dueDate = updatedFields.dueDate;
-            }
-            if (updatedFields.subtasks) {
-              updatedTask.subtasks = updatedFields.subtasks;
-            }
-            return updatedTask;
+            return { ...task, ...updatedTaskFromServer };
           }
           return task;
         })
@@ -92,6 +85,17 @@ const TaskIndex = () => {
     } catch (error) {
       console.error('Failed to create subtask:', error);
       alert('Nepodařilo se vytvořit subtask.');
+    }
+  };
+
+  const handleDeleteTask = async (taskIdToDelete) => {
+    try {
+      await apiDelete(`/tasks/${taskIdToDelete}`);
+      // Po úspěšném smazání z backendu aktualizujeme stav v TaskIndex
+      setTasks((prevTasks) => prevTasks.filter(task => task._id !== taskIdToDelete));
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+      alert('Nepodařilo se smazat úkol.');
     }
   };
 
@@ -132,114 +136,114 @@ const TaskIndex = () => {
 
   return (
     <div>
-    
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
         <Button variant="primary" className="mb-3" onClick={handleShowAddTaskModal}>
           Add Task
         </Button>
       </div>
 
-    <div className="task-index">
-      <Modal show={showAddTaskModal} onHide={handleCloseAddTaskModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Přidat nový úkol</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Název úkolu</Form.Label>
-              <Form.Control
-                type="text"
-                value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
-                maxLength={50}
-                required
-              />
-              <Form.Text className="text-muted">Maximálně 50 znaků.</Form.Text>
-            </Form.Group>
+      <div className="task-index">
+        <Modal show={showAddTaskModal} onHide={handleCloseAddTaskModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Přidat nový úkol</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Label>Název úkolu</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  maxLength={50}
+                  required
+                />
+                <Form.Text className="text-muted">Maximálně 50 znaků.</Form.Text>
+              </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Popis</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={newTaskDescription}
-                onChange={(e) => setNewTaskDescription(e.target.value)}
-              />
-            </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Popis</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={newTaskDescription}
+                  onChange={(e) => setNewTaskDescription(e.target.value)}
+                />
+              </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Datum dokončení</Form.Label>
-              <DatePicker
-                selected={newTaskDueDate}
-                onChange={(date) => setNewTaskDueDate(date)}
-                className="form-control"
-                dateFormat="yyyy-MM-dd"
-                placeholderText="Vyberte datum"
-              />
-            </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Datum dokončení</Form.Label>
+                <DatePicker
+                  selected={newTaskDueDate}
+                  onChange={(date) => setNewTaskDueDate(date)}
+                  className="form-control"
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="Vyberte datum"
+                />
+              </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Priorita</Form.Label>
-              <Form.Select
-                value={newTaskPriority}
-                onChange={(e) => setNewTaskPriority(e.target.value)}
-              >
-                <option value="">Not Set</option>
-                <option>Low</option>
-                <option>Medium</option>
-                <option>High</option>
-              </Form.Select>
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Řešitel</Form.Label>
-              {loadingSolversForNewTask ? (
-                <Form.Control readOnly defaultValue="Loading..." />
-              ) : (
+              <Form.Group className="mb-3">
+                <Form.Label>Priorita</Form.Label>
                 <Form.Select
-                  value={newTaskSolver}
-                  onChange={(e) => setNewTaskSolver(e.target.value)}
+                  value={newTaskPriority}
+                  onChange={(e) => setNewTaskPriority(e.target.value)}
                 >
                   <option value="">Not Set</option>
-                  {solvers.map((solver) => (
-                    <option key={solver._id} value={solver._id}>
-                      {solver.name}
-                    </option>
-                  ))}
+                  <option>Low</option>
+                  <option>Medium</option>
+                  <option>High</option>
                 </Form.Select>
-              )}
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseAddTaskModal}>
-            Zrušit
-          </Button>
-          <Button variant="primary" onClick={handleCreateNewTask}>
-            Přidat
-          </Button>
-        </Modal.Footer>
-      </Modal>
+              </Form.Group>
 
-      {tasks.map((task) => (
-        <Card
-          key={task._id}
-          _id={task._id}
-          title={task.title}
-          description={task.description}
-          solver={task.solver}
-          priority={task.priority}
-          subtasks={task.subtasks}
-          dueDate={task.dueDate}
-          created={task.created}
-          notes={task.notes}
-          completition={task.completition}
-          onUpdate={(fields) => handleUpdate(task._id, fields)}
-          onCreateSubtask={handleCreateSubtask}
-        />
-      ))}
-    </div>
+              <Form.Group className="mb-3">
+                <Form.Label>Řešitel</Form.Label>
+                {loadingSolversForNewTask ? (
+                  <Form.Control readOnly defaultValue="Loading..." />
+                ) : (
+                  <Form.Select
+                    value={newTaskSolver}
+                    onChange={(e) => setNewTaskSolver(e.target.value)}
+                  >
+                    <option value="">Not Set</option>
+                    {solvers.map((solver) => (
+                      <option key={solver._id} value={solver._id}>
+                        {solver.name}
+                      </option>
+                    ))}
+                  </Form.Select>
+                )}
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseAddTaskModal}>
+              Zrušit
+            </Button>
+            <Button variant="primary" onClick={handleCreateNewTask}>
+              Přidat
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {tasks.map((task) => (
+          <Card
+            key={task._id}
+            _id={task._id}
+            title={task.title}
+            description={task.description}
+            solver={task.solver}
+            priority={task.priority}
+            subtasks={task.subtasks}
+            dueDate={task.dueDate}
+            created={task.created}
+            notes={task.notes}
+            completition={task.completition}
+            onUpdate={(fields) => handleUpdate(task._id, fields)}
+            onCreateSubtask={handleCreateSubtask}
+            onDeleteTask={handleDeleteTask} 
+          />
+        ))}
+      </div>
     </div>
   );
 };
