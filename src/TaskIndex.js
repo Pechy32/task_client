@@ -1,45 +1,231 @@
 import { useEffect, useState } from 'react';
 import Card from './components/card/Card.js';
-import { apiGet, apiPut } from './utils/api.js';
-import './TaskIndex.css'
+import { apiGet, apiPut, apiPost } from './utils/api.js';
+import './TaskIndex.css';
+import { Button, Modal, Form } from 'react-bootstrap';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const TaskIndex = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskDescription, setNewTaskDescription] = useState('');
+  const [newTaskDueDate, setNewTaskDueDate] = useState(null);
+  const [newTaskPriority, setNewTaskPriority] = useState('');
+  const [newTaskSolver, setNewTaskSolver] = useState('');
+  const [solvers, setSolvers] = useState([]);
+  const [loadingSolversForNewTask, setLoadingSolversForNewTask] = useState(true);
+
+  const fetchTasksWithSubtasks = async () => {
+    try {
+      const tasksData = await apiGet('/tasks?parentTaskId=null');
+
+      const tasksWithSubtasks = await Promise.all(
+        tasksData.map(async (task) => {
+          try {
+            const subtasks = await apiGet(`/tasks?parentTaskId=${task._id}`);
+            return { ...task, subtasks };
+          } catch (subtaskErr) {
+            console.error(`Failed to fetch subtasks for task ${task._id}:`, subtaskErr);
+            return { ...task, subtasks: [] };
+          }
+        })
+      );
+
+      setTasks(tasksWithSubtasks);
+    } catch (error) {
+      console.error('Failed to fetch tasks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTasks = async () => {
+    fetchTasksWithSubtasks();
+  }, []);
+
+  useEffect(() => {
+    const fetchSolvers = async () => {
       try {
-        const data = await apiGet('/tasks');
-        setTasks(data);
+        const data = await apiGet('/solvers');
+        setSolvers(data);
       } catch (error) {
-        console.error('Failed to fetch tasks:', error);
+        console.error('Failed to fetch solvers:', error);
       } finally {
-        setLoading(false);
+        setLoadingSolversForNewTask(false);
       }
     };
 
-    fetchTasks();
+    fetchSolvers();
   }, []);
 
   const handleUpdate = async (taskId, updatedFields) => {
     try {
-      const updatedTask = await apiPut(`/tasks/${taskId}`, updatedFields);
+      const updatedTaskFromServer = await apiPut(`/tasks/${taskId}`, updatedFields);
+
       setTasks((prevTasks) =>
-        prevTasks.map((task) => (task._id === taskId ? updatedTask : task))
+        prevTasks.map((task) => {
+          if (task._id === taskId) {
+            const updatedTask = { ...updatedTaskFromServer };
+            if (updatedFields.dueDate) {
+              updatedTask.dueDate = updatedFields.dueDate;
+            }
+            if (updatedFields.subtasks) {
+              updatedTask.subtasks = updatedFields.subtasks;
+            }
+            return updatedTask;
+          }
+          return task;
+        })
       );
     } catch (error) {
       console.error('Failed to update task:', error);
     }
   };
 
+  const handleCreateSubtask = async (subtaskData) => {
+    try {
+      await apiPost('/tasks', subtaskData);
+      fetchTasksWithSubtasks();
+    } catch (error) {
+      console.error('Failed to create subtask:', error);
+      alert('Nepodařilo se vytvořit subtask.');
+    }
+  };
+
+  const handleShowAddTaskModal = () => setShowAddTaskModal(true);
+  const handleCloseAddTaskModal = () => setShowAddTaskModal(false);
+
+  const handleCreateNewTask = async () => {
+    if (newTaskTitle.trim() !== "" && newTaskTitle.length <= 50) {
+      const newTaskData = {
+        title: newTaskTitle,
+        description: newTaskDescription,
+        dueDate: newTaskDueDate,
+        priority: newTaskPriority === "" ? null : newTaskPriority,
+        solver: newTaskSolver === "" ? null : newTaskSolver,
+      };
+
+      try {
+        await apiPost('/tasks', newTaskData);
+        setNewTaskTitle('');
+        setNewTaskDescription('');
+        setNewTaskDueDate(null);
+        setNewTaskPriority('');
+        setNewTaskSolver('');
+        handleCloseAddTaskModal();
+        fetchTasksWithSubtasks();
+      } catch (error) {
+        console.error('Failed to create task:', error);
+        alert('Nepodařilo se vytvořit nový úkol.');
+      }
+    } else if (newTaskTitle.trim() === "") {
+      alert('Název úkolu je povinný.');
+    } else if (newTaskTitle.length > 50) {
+      alert('Název úkolu může mít maximálně 50 znaků.');
+    }
+  };
+
   if (loading) return <p>Loading tasks...</p>;
 
   return (
+    <div>
+    
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Button variant="primary" className="mb-3" onClick={handleShowAddTaskModal}>
+          Add Task
+        </Button>
+      </div>
+
     <div className="task-index">
+      <Modal show={showAddTaskModal} onHide={handleCloseAddTaskModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Přidat nový úkol</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Název úkolu</Form.Label>
+              <Form.Control
+                type="text"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                maxLength={50}
+                required
+              />
+              <Form.Text className="text-muted">Maximálně 50 znaků.</Form.Text>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Popis</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={newTaskDescription}
+                onChange={(e) => setNewTaskDescription(e.target.value)}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Datum dokončení</Form.Label>
+              <DatePicker
+                selected={newTaskDueDate}
+                onChange={(date) => setNewTaskDueDate(date)}
+                className="form-control"
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Vyberte datum"
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Priorita</Form.Label>
+              <Form.Select
+                value={newTaskPriority}
+                onChange={(e) => setNewTaskPriority(e.target.value)}
+              >
+                <option value="">Not Set</option>
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </Form.Select>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Řešitel</Form.Label>
+              {loadingSolversForNewTask ? (
+                <Form.Control readOnly defaultValue="Loading..." />
+              ) : (
+                <Form.Select
+                  value={newTaskSolver}
+                  onChange={(e) => setNewTaskSolver(e.target.value)}
+                >
+                  <option value="">Not Set</option>
+                  {solvers.map((solver) => (
+                    <option key={solver._id} value={solver._id}>
+                      {solver.name}
+                    </option>
+                  ))}
+                </Form.Select>
+              )}
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseAddTaskModal}>
+            Zrušit
+          </Button>
+          <Button variant="primary" onClick={handleCreateNewTask}>
+            Přidat
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       {tasks.map((task) => (
         <Card
           key={task._id}
+          _id={task._id}
           title={task.title}
           description={task.description}
           solver={task.solver}
@@ -50,8 +236,10 @@ const TaskIndex = () => {
           notes={task.notes}
           completition={task.completition}
           onUpdate={(fields) => handleUpdate(task._id, fields)}
+          onCreateSubtask={handleCreateSubtask}
         />
       ))}
+    </div>
     </div>
   );
 };
