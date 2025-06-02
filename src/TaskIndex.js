@@ -136,7 +136,7 @@ const TaskIndex = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'left', marginTop: '10px' }}>
         <Button variant="primary" className="mb-3" onClick={handleShowAddTaskModal}>
           Add Task
         </Button>

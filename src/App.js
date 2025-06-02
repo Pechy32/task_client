@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import TaskIndex from "./TaskIndex.js";
+import SolverIndex from "./SolverIndex.js";
 
 function App() {
   return (
@@ -40,7 +41,7 @@ function App() {
 
           <Route index element={<Navigate to={"/solvers"} />} />
           <Route path="/solvers">
-            <Route index element={"<SolverIndex />"} />
+            <Route index element={<SolverIndex />} />
             <Route path="show/:id" element={"<SolverDetail />"} />
             <Route path="create" element={"<SolverForm />"} />
             <Route path="edit/:id" element={"<SolverForm />"} />
