@@ -6,11 +6,11 @@ import './card.css';
 import { formatToCET } from '../../utils/dateTimeFormatter.js';
 import { apiPut, apiGet, apiDelete } from '../../utils/api.js';
 import { X, Pencil, Trash } from 'react-bootstrap-icons';
-import EditTitleModal from './EditTitleModal.js';
-import EditDescriptionModal from './EditDescriptionModal.js';
-import AddSubtaskModal from './AddSubtaskModal.js';
-import AddNoteModal from './AddNoteModal.js';
-import DeleteConfirmationModal from './DeleteConfirmationModal.js';
+import EditTitleModal from './modal/EditTitleModal.js';
+import EditDescriptionModal from './modal/EditDescriptionModal.js';
+import AddSubtaskModal from './modal/AddSubtaskModal.js';
+import AddNoteModal from './modal/AddNoteModal.js';
+import DeleteConfirmationModal from './modal/DeleteConfirmationModal.js';
 
 const Card = ({
   _id: taskId,

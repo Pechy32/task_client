@@ -3,8 +3,8 @@ import Card from './components/card/Card.js';
 import { apiGet, apiPut, apiPost, apiDelete } from './utils/api.js';
 import './TaskIndex.css';
 import { Button, Modal, Form } from 'react-bootstrap';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import AddTaskModal from './components/card/modal/AddTaskModal.js';
 
 const TaskIndex = () => {
   const [tasks, setTasks] = useState([]);
@@ -154,87 +154,23 @@ const TaskIndex = () => {
       </div>
 
       <div className="task-index">
-        <Modal show={showAddTaskModal} onHide={handleCloseAddTaskModal}>
-          <Modal.Header closeButton>
-            <Modal.Title>Přidat nový úkol</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Název úkolu</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={newTaskTitle}
-                  onChange={(e) => setNewTaskTitle(e.target.value)}
-                  maxLength={50}
-                  required
-                />
-                <Form.Text className="text-muted">Maximálně 50 znaků.</Form.Text>
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Popis</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={newTaskDescription}
-                  onChange={(e) => setNewTaskDescription(e.target.value)}
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Datum dokončení</Form.Label>
-                <DatePicker
-                  selected={newTaskDueDate}
-                  onChange={(date) => setNewTaskDueDate(date)}
-                  className="form-control"
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText="Vyberte datum"
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Priorita</Form.Label>
-                <Form.Select
-                  value={newTaskPriority}
-                  onChange={(e) => setNewTaskPriority(e.target.value)}
-                >
-                  <option value="">Not Set</option>
-                  <option>Low</option>
-                  <option>Medium</option>
-                  <option>High</option>
-                </Form.Select>
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Řešitel</Form.Label>
-                {loadingSolversForNewTask ? (
-                  <Form.Control readOnly defaultValue="Loading..." />
-                ) : (
-                  <Form.Select
-                    value={newTaskSolver}
-                    onChange={(e) => setNewTaskSolver(e.target.value)}
-                  >
-                    <option value="">Not Set</option>
-                    {solvers.map((solver) => (
-                      <option key={solver._id} value={solver._id}>
-                        {solver.name}
-                      </option>
-                    ))}
-                  </Form.Select>
-                )}
-              </Form.Group>
-            </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseAddTaskModal}>
-              Zrušit
-            </Button>
-            <Button variant="primary" onClick={handleCreateNewTask}>
-              Přidat
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <AddTaskModal
+          show={showAddTaskModal}
+          onHide={handleCloseAddTaskModal}
+          onSubmit={handleCreateNewTask}
+          title={newTaskTitle}
+          description={newTaskDescription}
+          dueDate={newTaskDueDate}
+          priority={newTaskPriority}
+          solver={newTaskSolver}
+          solvers={solvers}
+          loadingSolvers={loadingSolversForNewTask}
+          onTitleChange={(e) => setNewTaskTitle(e.target.value)}
+          onDescriptionChange={(e) => setNewTaskDescription(e.target.value)}
+          onDueDateChange={(date) => setNewTaskDueDate(date)}
+          onPriorityChange={(e) => setNewTaskPriority(e.target.value)}
+          onSolverChange={(e) => setNewTaskSolver(e.target.value)}
+        />
 
         {tasks.map((task) => (
           <Card

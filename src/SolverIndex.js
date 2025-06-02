@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiDelete, apiPut, apiPost } from './utils/api';
 import Solver from './components/solver/Solver';
-import EditSolverModal from './components/solver/EditSolverModal';
-import ConfirmDeleteModal from './components/solver/ConfirmDeleteModal';
-import AddSolverModal from './components/solver/AddSolverModal';
+import EditSolverModal from './components/solver/modal/EditSolverModal';
+import ConfirmDeleteModal from './components/solver/modal/ConfirmDeleteModal';
+import AddSolverModal from './components/solver/modal/AddSolverModal';
 import { Button } from 'react-bootstrap';
 
 const SolverIndex = () => {

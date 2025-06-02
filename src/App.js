@@ -33,18 +33,12 @@ function App() {
         <Routes>
           <Route index element={<Navigate to={"/tasks"} />} />
           <Route path="/tasks">
-            <Route index element={<TaskIndex/>} />
-            <Route path="show/:id" element={"<TaskDetail />"} />
-            <Route path="create" element={"<TaskForm />"} />
-            <Route path="edit/:id" element={"<TaskForm />"} />
+            <Route index element={<TaskIndex/>} />           
           </Route>
 
           <Route index element={<Navigate to={"/solvers"} />} />
           <Route path="/solvers">
-            <Route index element={<SolverIndex />} />
-            <Route path="show/:id" element={"<SolverDetail />"} />
-            <Route path="create" element={"<SolverForm />"} />
-            <Route path="edit/:id" element={"<SolverForm />"} />
+            <Route index element={<SolverIndex />} />            
           </Route>
         </Routes>
       </div>
