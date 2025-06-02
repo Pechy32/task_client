@@ -61,18 +61,30 @@ const TaskIndex = () => {
     fetchSolvers();
   }, []);
 
-  const handleUpdate = async (taskId, updatedFields) => {
+  const handleUpdate = async (taskId, updateData) => {
     try {
-      const updatedTaskFromServer = await apiPut(`/tasks/${taskId}`, updatedFields);
-
-      setTasks((prevTasks) =>
-        prevTasks.map((task) => {
-          if (task._id === taskId) {
-            return { ...task, ...updatedTaskFromServer };
-          }
-          return task;
-        })
-      );
+      if (updateData.subtask) {
+        setTasks((prevTasks) =>
+          prevTasks.map((task) => {
+            if (task._id === taskId) {
+              return {
+                ...task,
+                subtasks: task.subtasks.map((subtask) =>
+                  subtask._id === updateData.subtask._id ? updateData.subtask : subtask
+                ),
+              };
+            }
+            return task;
+          })
+        );
+      } else {
+        const updatedTaskFromServer = await apiPut(`/tasks/${taskId}`, updateData);
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task._id === taskId ? { ...task, ...updatedTaskFromServer } : task
+          )
+        );
+      }
     } catch (error) {
       console.error('Failed to update task:', error);
     }
@@ -91,7 +103,6 @@ const TaskIndex = () => {
   const handleDeleteTask = async (taskIdToDelete) => {
     try {
       await apiDelete(`/tasks/${taskIdToDelete}`);
-      // Po úspěšném smazání z backendu aktualizujeme stav v TaskIndex
       setTasks((prevTasks) => prevTasks.filter(task => task._id !== taskIdToDelete));
     } catch (error) {
       console.error('Failed to delete task:', error);
@@ -240,7 +251,7 @@ const TaskIndex = () => {
             completition={task.completition}
             onUpdate={(fields) => handleUpdate(task._id, fields)}
             onCreateSubtask={handleCreateSubtask}
-            onDeleteTask={handleDeleteTask} 
+            onDeleteTask={handleDeleteTask}
           />
         ))}
       </div>

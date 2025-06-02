@@ -41,19 +41,23 @@ const Card = ({
 
   const handleFlip = () => setFlipped(!flipped);
 
-  const handleSubtaskChange = async (index) => {
-    const subtask = initialSubtasks[index];
-    const updatedCompletion = !subtask.isCompleted;
+  const handleSubtaskChange = async (subtaskId) => {
+    const subtaskToUpdate = initialSubtasks.find(subtask => subtask._id === subtaskId);
+
+    if (!subtaskToUpdate) {
+      console.error(`Subtask with ID ${subtaskId} not found.`);
+      return;
+    }
+
+    const updatedCompletion = !subtaskToUpdate.isCompleted;
 
     try {
-      const updatedSubtask = await apiPut(`/tasks/${subtask._id}`, {
+      const updatedSubtaskFromApi = await apiPut(`/tasks/${subtaskId}`, {
         isCompleted: updatedCompletion,
       });
-      const updatedSubtasks = [...initialSubtasks];
-      updatedSubtasks[index] = updatedSubtask;
-      onUpdate?.({ subtasks: updatedSubtasks });
+      onUpdate?.({ _id: taskId, subtask: updatedSubtaskFromApi });
     } catch (error) {
-      console.error(`Failed to update subtask ${subtask._id}:`, error);
+      console.error(`Failed to update subtask ${subtaskId}:`, error);
     }
   };
 
@@ -122,7 +126,7 @@ const Card = ({
     try {
       await apiDelete(`/tasks/${taskId}`);
       handleCloseDeleteConfirmationModal();
-      onDeleteTask?.(taskId); 
+      onDeleteTask?.(taskId);
     } catch (error) {
       console.error('Failed to delete task:', error);
       alert('Nepodařilo se smazat úkol.');
@@ -134,7 +138,7 @@ const Card = ({
       <div className="task-card">
         {/* FRONT */}
         <div className="task-card-front">
-          <div className='task-card-header d-flex justify-content-center align-items-center'> 
+          <div className='task-card-header d-flex justify-content-center align-items-center'>
             <h5 className="task-card-title">{initialTitle}</h5>
             <Pencil size={14} className="ms-2" style={{ cursor: 'pointer' }} onClick={handleShowEditTitleModal} />
           </div>
@@ -221,13 +225,13 @@ const Card = ({
             <hr />
 
             <ul className='my-ul'>
-              {initialSubtasks?.map((subtask, index) => (
-                <li key={index}>
+              {initialSubtasks?.map((subtask) => (
+                <li key={subtask._id}>
                   <Form.Check
                     type="checkbox"
                     label={subtask.title}
                     checked={subtask.isCompleted}
-                    onChange={() => handleSubtaskChange(index)}
+                    onChange={() => handleSubtaskChange(subtask._id)}
                   />
                 </li>
               ))}
