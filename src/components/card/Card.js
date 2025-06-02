@@ -86,6 +86,36 @@ const Card = ({
     fetchSolvers();
   }, []);
 
+  const getPriorityClassName = (priority) => {
+    switch (priority) {
+      case 'Low':
+        return 'priority-low-text';
+      case 'Medium':
+        return 'priority-medium-text';
+      case 'High':
+        return 'priority-high-text';
+      default:
+        return '';
+    }
+  };
+
+  const getDueDateClassName = (dueDate) => {
+    if (!dueDate) {
+      return ''; 
+    }
+    const now = new Date();
+    const dueDateObj = new Date(dueDate);
+    const differenceInDays = (dueDateObj - now) / (1000 * 60 * 60 * 24);
+
+    if (differenceInDays < -0.5) { 
+      return 'duedate-past';
+    } else if (differenceInDays < 3) {
+      return 'duedate-soon';
+    } else {
+      return ''; 
+    }
+  };
+
   // Handlers for showing/hiding modals
   const handleShowEditTitleModal = () => setShowEditTitleModal(true);
   const handleCloseEditTitleModal = () => setShowEditTitleModal(false);
@@ -150,12 +180,12 @@ const Card = ({
               <Col>
                 <Form.Group>
                   <Form.Label>Due Date</Form.Label>
-                  <div className="d-flex align-items-center">
+                  <div className={`d-flex align-items-center ${getDueDateClassName(localDueDate)}`}>
                     <DatePicker
                       selected={localDueDate}
                       onChange={handleDueDateChange}
-                      className="form-control"
-                      dateFormat="yyyy-MM-dd"
+                      className={`form-control ${getDueDateClassName(localDueDate)}`} 
+                      dateFormat="dd.MM.yyyy"
                       placeholderText="Select date"
                     />
                     {localDueDate && (
@@ -179,13 +209,14 @@ const Card = ({
                     value={initialPriority || ""}
                     onChange={(e) => {
                       const newValue = e.target.value === "" ? null : e.target.value;
-                      onUpdate?.({ priority: newValue });
+                      onUpdate?.({ priority: newValue });                   
                     }}
+                    className={getPriorityClassName(initialPriority)}
                   >
-                    <option value="">Not Set</option>
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
+                    <option value="" className={getPriorityClassName("")}>Not Set</option>
+                    <option value="Low" className={getPriorityClassName("Low")}>Low</option>
+                    <option value="Medium" className={getPriorityClassName("Medium")}>Medium</option>
+                    <option value="High" className={getPriorityClassName("High")}>High</option>
                   </Form.Select>
                 </Form.Group>
               </Col>

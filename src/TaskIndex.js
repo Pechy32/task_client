@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Card from './components/card/Card.js';
 import { apiGet, apiPut, apiPost, apiDelete } from './utils/api.js';
 import './TaskIndex.css';
-import { Button, Modal, Form } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import 'react-datepicker/dist/react-datepicker.css';
 import AddTaskModal from './components/card/modal/AddTaskModal.js';
 

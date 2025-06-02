@@ -151,3 +151,24 @@ h5 {
 .task-card-back {
     transform: rotateY(180deg);
 }
+
+.priority-low-text {
+  color: green;
+}
+
+.priority-medium-text {
+  color: darkorange
+}
+
+.priority-high-text {
+  color: red;
+}
+
+.duedate-soon {
+  color: darkorange;
+}
+
+.duedate-past {
+  color: red;
+}
+
