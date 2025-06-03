@@ -23,7 +23,9 @@
 
 ul.my-ul {
     margin-top: 10px;
-    list-style: none;
+    list-style: none;   
+    text-wrap: wrap;
+    overflow-wrap: break-word;
 }
 
 ul.my-ul li {
@@ -42,13 +44,6 @@ ul.my-ul li::before {
     height: 18px;
     background-size: contain;
     background-repeat: no-repeat;
-}
-
-.task-card img {
-    margin-top: 10px;
-    width: 125px;
-    height: 125px;
-    border-radius: 50%;
 }
 
 .task-card ul {
@@ -74,6 +69,8 @@ ul.my-ul li::before {
 .task-card-icon {
     background-image: url("/public/images/flip_icon.png");
     background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -88,10 +85,14 @@ ul.my-ul li::before {
     box-shadow: 0px 0px 1px 1px;
     border: 1px double rgba(0, 0, 0, 0.5);
     padding-bottom: 1px;
+    transition: all 0.3s ease-in-out;
 }
 
 .task-card-icon:hover{
     cursor: pointer;
+    transform: rotate(-15deg);
+    transition: transform 0.3s;
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 .task-card-header {
