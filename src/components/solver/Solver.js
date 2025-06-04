@@ -1,17 +1,14 @@
 import React from 'react';
-import { Pencil, Trash } from 'react-bootstrap-icons';
+import { Pencil, Trash, Person } from 'react-bootstrap-icons';
 
 const Solver = ({ name, solverId, onEdit, onDelete }) => {
     return (
-        <div className="border p-4 rounded shadow-md flex items-center justify-between">
-            <h3>{name}</h3>
+        <div className="border p-4 rounded shadow-md flex items-center justify-between" style={{ display: 'flex', alignItems: 'center' }}>      
+            <Person size={40}/>
+            <h3>{name}</h3> 
             <div>
-                <button onClick={() => onEdit(solverId)} className="btn btn-sm btn-outline-primary mr-2">
-                    <Pencil size={20} />
-                </button>
-                <button onClick={() => onDelete(solverId)} className="btn btn-sm btn-outline-danger">
-                    <Trash size={20} />
-                </button>
+                <Pencil size={20} onClick={() => onEdit(solverId)} style={{ cursor: 'pointer', marginRight: '15px', marginLeft: '10px' }} color='blue' />
+                <Trash size={20} onClick={() => onDelete(solverId)} style={{cursor: 'pointer'}} color='red' />
             </div>
         </div>
     );
