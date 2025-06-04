@@ -184,7 +184,7 @@ const TaskIndex = () => {
             dueDate={task.dueDate}
             created={task.created}
             notes={task.notes}
-            completition={task.completition}
+            isCompleted={task.isCompleted}
             onUpdate={(fields) => handleUpdate(task._id, fields)}
             onCreateSubtask={handleCreateSubtask}
             onDeleteTask={handleDeleteTask}

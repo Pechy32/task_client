@@ -153,6 +153,9 @@ h5 {
     transform: rotateY(180deg);
 }
 
+
+/* Task Card Priority and Due Date Styles */
+
 .priority-low-text {
   color: green;
 }
@@ -172,4 +175,26 @@ h5 {
 .duedate-past {
   color: red;
 }
+
+
+/* Custom Completition checkbox */
+
+.custom-checkbox-lg-green .form-check-input {
+  border-color: #28a745 !important; 
+  width: 1.5em; 
+  height: 1.5em; 
+}
+
+.custom-checkbox-lg-green .form-check-input:checked {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3 6-6'/%3e%3c/svg%3e") !important;
+}
+
+.custom-checkbox-lg-green .form-check-input:checked {
+  border-color: #28a745 !important;
+  background-color: #28a745 !important; 
+}
+
+
+
+
 

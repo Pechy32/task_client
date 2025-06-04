@@ -22,7 +22,7 @@ const Card = ({
   dueDate: initialDueDate,
   created,
   notes: initialNotes,
-  completition,
+  isCompleted,
   onUpdate,
   onCreateSubtask,
   onDeleteTask,
@@ -40,6 +40,19 @@ const Card = ({
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
 
   const handleFlip = () => setFlipped(!flipped);
+
+  const handleIsCompletedChange = async (event) => {
+  const updatedCompletion = event.target.checked; // Získání stavu z eventu
+  try {
+    const updatedTaskFromApi = await apiPut(`/tasks/${taskId}`, {
+      isCompleted: updatedCompletion,
+    });
+    onUpdate?.({ _id: taskId, isCompleted: updatedTaskFromApi.isCompleted });
+  } catch (error) {
+    console.error(`Failed to update task completion status:`, error);
+    alert('Nepodařilo se aktualizovat stav dokončení úkolu.');
+  }
+};
 
   const handleSubtaskChange = async (subtaskId) => {
     const subtaskToUpdate = initialSubtasks.find(subtask => subtask._id === subtaskId);
@@ -86,6 +99,7 @@ const Card = ({
     fetchSolvers();
   }, []);
 
+  // Helper functions for class names based on priority and due date
   const getPriorityClassName = (priority) => {
     switch (priority) {
       case 'Low':
@@ -225,7 +239,12 @@ const Card = ({
             <Row className="mt-2">
               <Col>
                 <Form.Label>Completition</Form.Label>
-                <p>{completition || "0 %"}</p>
+                <Form.Check                   
+                    type="checkbox"                    
+                    checked={isCompleted} 
+                    onChange={handleIsCompletedChange}  
+                    className="custom-checkbox-lg-green"              
+                  />
               </Col>
               <Col>
                 <Form.Group>
