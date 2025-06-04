@@ -9,14 +9,14 @@ const AddSubtaskModal = ({ show, onHide, onAdd }) => {
   };
 
   const handleAdd = () => {
-    if (newSubtaskTitle.trim() !== "" && newSubtaskTitle.length <= 100) {
+    if (newSubtaskTitle.trim() !== "" && newSubtaskTitle.length <= 50) {
       onAdd({ title: newSubtaskTitle });
       setNewSubtaskTitle('');
       onHide();
     } else if (newSubtaskTitle.trim() === "") {
       alert("Název subtasku nemůže být prázdný.");
-    } else if (newSubtaskTitle.length > 100) {
-      alert("Název subtasku může mít maximálně 100 znaků.");
+    } else if (newSubtaskTitle.length > 50) {
+      alert("Název subtasku může mít maximálně 50 znaků.");
     }
   };
 
@@ -32,10 +32,10 @@ const AddSubtaskModal = ({ show, onHide, onAdd }) => {
             type="text"
             value={newSubtaskTitle}
             onChange={handleNewSubtaskTitleChange}
-            maxLength={100}
+            maxLength={50}
           />
           <Form.Text className="text-muted">
-            Maximálně 100 znaků.
+            Maximálně 50 znaků.
           </Form.Text>
         </Form.Group>
       </Modal.Body>

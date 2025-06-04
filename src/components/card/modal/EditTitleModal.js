@@ -13,13 +13,13 @@ const EditTitleModal = ({ show, onHide, initialTitle, onSave }) => {
   };
 
   const handleSave = () => {
-    if (localTitle.trim() !== "" && localTitle.length <= 100) {
+    if (localTitle.trim() !== "" && localTitle.length <= 50) {
       onSave(localTitle);
       onHide();
     } else if (localTitle.trim() === "") {
       alert("Název nemůže být prázdný.");
-    } else if (localTitle.length > 100) {
-      alert("Název může mít maximálně 100 znaků.");
+    } else if (localTitle.length > 50) {
+      alert("Název může mít maximálně 50 znaků.");
     }
   };
 
@@ -35,10 +35,10 @@ const EditTitleModal = ({ show, onHide, initialTitle, onSave }) => {
             type="text"
             value={localTitle}
             onChange={handleTitleChange}
-            maxLength={100}
+            maxLength={50}
           />
           <Form.Text className="text-muted">
-            Maximálně 100 znaků.
+            Maximálně 50 znaků.
           </Form.Text>
         </Form.Group>
       </Modal.Body>

@@ -28,6 +28,7 @@ const AddSolverModal = ({ show, onHide, onSave }) => {
                             placeholder="Zadejte název solvera"
                             value={newSolverName}
                             onChange={handleInputChange}
+                            maxLength={30}
                         />
                     </Form.Group>
                 </Form>

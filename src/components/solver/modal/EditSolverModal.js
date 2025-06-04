@@ -24,6 +24,7 @@ const EditSolverModal = ({ show, onHide, solver, onSave }) => {
                             type="text"
                             value={editedName}
                             onChange={(e) => setEditedName(e.target.value)}
+                            maxLength={30}
                         />
                     </Form.Group>
                 </Form>
