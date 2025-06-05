@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Card from './components/card/Card.js';
 import { apiGet, apiPut, apiPost, apiDelete } from './utils/api.js';
 import './TaskIndex.css';
-import { Button } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import 'react-datepicker/dist/react-datepicker.css';
 import AddTaskModal from './components/card/modal/AddTaskModal.js';
 
@@ -17,34 +17,44 @@ const TaskIndex = () => {
   const [newTaskSolver, setNewTaskSolver] = useState('');
   const [solvers, setSolvers] = useState([]);
   const [loadingSolversForNewTask, setLoadingSolversForNewTask] = useState(true);
+  const [sortingOptions, setSortingOptions] = useState("DueDate");
 
   const fetchTasksWithSubtasks = async () => {
-    try {
-      const tasksData = await apiGet('/tasks?parentTaskId=null');
+  setLoading(true); 
 
-      const tasksWithSubtasks = await Promise.all(
-        tasksData.map(async (task) => {
-          try {
-            const subtasks = await apiGet(`/tasks?parentTaskId=${task._id}`);
-            return { ...task, subtasks };
-          } catch (subtaskErr) {
-            console.error(`Failed to fetch subtasks for task ${task._id}:`, subtaskErr);
-            return { ...task, subtasks: [] };
-          }
-        })
-      );
-
-      setTasks(tasksWithSubtasks);
-    } catch (error) {
-      console.error('Failed to fetch tasks:', error);
-    } finally {
-      setLoading(false);
+  try {
+    let url = '/tasks?parentTaskId=null';
+    if (sortingOptions === "Priority") {
+      url += '&sort=priority:desc,dueDate:asc,created:desc';
+    } else if (sortingOptions === "DueDate") {
+      url += '&sort=dueDate:asc,priority:desc,created:desc'; 
     }
-  };
+   
+    const tasksData = await apiGet(url); 
+    
+    const tasksWithSubtasks = await Promise.all(
+      tasksData.map(async (task) => {
+        try {
+          const subtasks = await apiGet(`/tasks?parentTaskId=${task._id}`);
+          return { ...task, subtasks };
+        } catch (subtaskErr) {
+          console.error(`Failed to fetch subtasks for task ${task._id}:`, subtaskErr);
+          return { ...task, subtasks: [] };
+        }
+      })
+    );
+
+    setTasks(tasksWithSubtasks);
+  } catch (error) {
+    console.error('Failed to fetch tasks:', error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchTasksWithSubtasks();
-  }, []);
+  }, [sortingOptions]);
 
   useEffect(() => {
     const fetchSolvers = async () => {
@@ -147,10 +157,26 @@ const TaskIndex = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'left', marginTop: '10px' }}>
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'left', marginTop: '10px' }}>
+
         <Button variant="primary" className="mb-3" onClick={handleShowAddTaskModal}>
           Add Task
         </Button>
+
+        <Form.Group style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+          <Form.Label style={{ margin: '10px' }}>Sort&nbsp;by:</Form.Label>
+          <Form.Select
+            value={sortingOptions || ""}
+            onChange={(e) => {
+              const newValue = e.target.value === "" ? null : e.target.value;
+              setSortingOptions(newValue);
+            }}
+          >
+            <option value="DueDate">Due Date</option>
+            <option value="Priority">Priority</option>
+          </Form.Select>
+        </Form.Group>
+
       </div>
 
       <div className="task-index">

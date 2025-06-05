@@ -12,8 +12,8 @@ const SolverIndex = () => {
     const [editingSolver, setEditingSolver] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [solverToDeleteId, setSolverToDeleteId] = useState(null);
-    const [showAddModal, setShowAddModal] = useState(false); // Nový stav pro zobrazení Add modal
-
+    const [showAddModal, setShowAddModal] = useState(false); 
+    
     const fetchSolvers = async () => {
         try {
             const data = await apiGet('/solvers');
@@ -95,7 +95,7 @@ const SolverIndex = () => {
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'left', marginTop: '10px' }}>
                 <Button variant="primary" className="mb-3" onClick={handleAddClick}>
                     Add Solver
-                </Button>
+                </Button>               
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {solversData.map((solver) => (
