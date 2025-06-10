@@ -42,17 +42,17 @@ const Card = ({
   const handleFlip = () => setFlipped(!flipped);
 
   const handleIsCompletedChange = async (event) => {
-  const updatedCompletion = event.target.checked; // Získání stavu z eventu
-  try {
-    const updatedTaskFromApi = await apiPut(`/tasks/${taskId}`, {
-      isCompleted: updatedCompletion,
-    });
-    onUpdate?.({ _id: taskId, isCompleted: updatedTaskFromApi.isCompleted });
-  } catch (error) {
-    console.error(`Failed to update task completion status:`, error);
-    alert('Nepodařilo se aktualizovat stav dokončení úkolu.');
-  }
-};
+    const updatedCompletion = event.target.checked; // Get the new completion status from the checkbox
+    try {
+      const updatedTaskFromApi = await apiPut(`/tasks/${taskId}`, {
+        isCompleted: updatedCompletion,
+      });
+      onUpdate?.({ _id: taskId, isCompleted: updatedTaskFromApi.isCompleted });
+    } catch (error) {
+      console.error(`Failed to update task completion status:`, error);
+      alert('Nepodařilo se aktualizovat stav dokončení úkolu.');
+    }
+  };
 
   const handleSubtaskChange = async (subtaskId) => {
     const subtaskToUpdate = initialSubtasks.find(subtask => subtask._id === subtaskId);
@@ -115,18 +115,18 @@ const Card = ({
 
   const getDueDateClassName = (dueDate) => {
     if (!dueDate) {
-      return ''; 
+      return '';
     }
     const now = new Date();
     const dueDateObj = new Date(dueDate);
     const differenceInDays = (dueDateObj - now) / (1000 * 60 * 60 * 24);
 
-    if (differenceInDays < -0.5) { 
+    if (differenceInDays < -0.5) {
       return 'duedate-past';
     } else if (differenceInDays < 3) {
       return 'duedate-soon';
     } else {
-      return ''; 
+      return '';
     }
   };
 
@@ -198,7 +198,7 @@ const Card = ({
                     <DatePicker
                       selected={localDueDate}
                       onChange={handleDueDateChange}
-                      className={`form-control ${getDueDateClassName(localDueDate)}`} 
+                      className={`form-control ${getDueDateClassName(localDueDate)}`}
                       dateFormat="dd.MM.yyyy"
                       placeholderText="Select date"
                     />
@@ -223,7 +223,7 @@ const Card = ({
                     value={initialPriority || ""}
                     onChange={(e) => {
                       const newValue = e.target.value === "" ? null : e.target.value;
-                      onUpdate?.({ priority: newValue });                   
+                      onUpdate?.({ priority: newValue });
                     }}
                     className={getPriorityClassName(initialPriority)}
                   >
@@ -239,12 +239,12 @@ const Card = ({
             <Row className="mt-2">
               <Col>
                 <Form.Label>Completition</Form.Label>
-                <Form.Check                   
-                    type="checkbox"                    
-                    checked={isCompleted} 
-                    onChange={handleIsCompletedChange}  
-                    className="custom-checkbox-lg-green"              
-                  />
+                <Form.Check
+                  type="checkbox"
+                  checked={isCompleted}
+                  onChange={handleIsCompletedChange}
+                  className="custom-checkbox-lg-green"
+                />
               </Col>
               <Col>
                 <Form.Group>
@@ -277,12 +277,15 @@ const Card = ({
             <ul className='my-ul'>
               {initialSubtasks?.map((subtask) => (
                 <li key={subtask._id}>
-                  <Form.Check
-                    type="checkbox"
-                    label={subtask.title}
-                    checked={subtask.isCompleted}
-                    onChange={() => handleSubtaskChange(subtask._id)}
-                  />
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Form.Check
+                      type="checkbox"
+                      label={subtask.title}
+                      checked={subtask.isCompleted}
+                      onChange={() => handleSubtaskChange(subtask._id)}
+                    />
+                    <Trash size={12} className="ms-2" style={{ cursor: 'pointer', color: 'red' }} />
+                  </div>
                 </li>
               ))}
             </ul>
