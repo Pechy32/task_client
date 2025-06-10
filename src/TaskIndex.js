@@ -35,7 +35,7 @@ const TaskIndex = () => {
     const tasksWithSubtasks = await Promise.all(
       tasksData.map(async (task) => {
         try {
-          const subtasks = await apiGet(`/tasks?parentTaskId=${task._id}`);
+          const subtasks = await apiGet(`/tasks?parentTaskId=${task._id}&sort=created:asc`);
           return { ...task, subtasks };
         } catch (subtaskErr) {
           console.error(`Failed to fetch subtasks for task ${task._id}:`, subtaskErr);
