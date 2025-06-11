@@ -76,19 +76,19 @@ const Card = ({
     }
   };
 
- const handleSubtaskDelete = async (subtaskId) => {
-  if (!window.confirm('Opravdu chcete smazat podúkol?')) {
-    return;
-  }
+  const handleSubtaskDelete = async (subtaskId) => {
+    if (!window.confirm('Opravdu chcete smazat podúkol?')) {
+      return;
+    }
 
-  try {
-    await apiDelete(`/tasks/${subtaskId}`);
-    onUpdate?.({ parentTaskId: taskId, deletedSubtaskId: subtaskId });
-  } catch (error) {
-    console.error(`Failed to delete subtask ${subtaskId}:`, error);
-    alert('Nepodařilo se smazat subúkol.');
-  }
-};
+    try {
+      await apiDelete(`/tasks/${subtaskId}`);
+      onUpdate?.({ parentTaskId: taskId, deletedSubtaskId: subtaskId });
+    } catch (error) {
+      console.error(`Failed to delete subtask ${subtaskId}:`, error);
+      alert('Nepodařilo se smazat subúkol.');
+    }
+  };
 
   const handleDueDateChange = (date) => {
     setLocalDueDate(date);
@@ -223,8 +223,10 @@ const Card = ({
         {/* FRONT */}
         <div className="task-card-front">
           <div className='task-card-header d-flex justify-content-center align-items-center'>
-            <h5 className="task-card-title">{initialTitle}</h5>
-            <Pencil size={14} className="ms-2" style={{ cursor: 'pointer' }} onClick={handleShowEditTitleModal} />
+            <h5 className="task-card-title">
+              {initialTitle}
+              <Pencil size={14} className="ms-2" style={{ cursor: 'pointer' }} onClick={handleShowEditTitleModal} />
+            </h5>
           </div>
 
           <div className="task-card-body">
@@ -369,10 +371,10 @@ const Card = ({
             <div onClick={handleFlip} className='task-card-icon' />
 
             <div>
-              <p>{initialDescription}</p>
-              <Pencil
+              {initialDescription}
+              <Pencil             
                 size={14}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', marginLeft: '5px' }}
                 onClick={handleShowEditDescriptionModal}
               />
             </div>
