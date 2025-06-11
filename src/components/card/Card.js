@@ -372,7 +372,7 @@ const Card = ({
 
             <div>
               {initialDescription}
-              <Pencil             
+              <Pencil
                 size={14}
                 style={{ cursor: 'pointer', marginLeft: '5px' }}
                 onClick={handleShowEditDescriptionModal}
@@ -384,7 +384,27 @@ const Card = ({
                 <li key={index}>
                   <small>{formatToCET(note.timestamp)}</small>
                   <br />
-                  <span>{note.note}</span>
+                  <span>
+                    {note.note}
+                    <Pencil
+                      size={12}
+                      className="ms-2"
+                      style={{ cursor: 'pointer' }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Implement edit note functionality here
+                      }}
+                    />
+                    <Trash
+                      size={12}
+                      className="ms-2"
+                      style={{ cursor: 'pointer', color: 'red' }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Implement delete note functionality here  
+                      }}
+                    />
+                  </span>
                 </li>
               ))}
             </ul>
