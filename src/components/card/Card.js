@@ -38,6 +38,8 @@ const Card = ({
   const [showAddSubtaskModal, setShowAddSubtaskModal] = useState(false);
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
+  const [showEditSubtaskTitleModal, setShowEditSubtaskTitleModal] = useState(false);
+  const [currentSubtaskToEdit, setCurrentSubtaskToEdit] = useState(null);
 
   const handleFlip = () => setFlipped(!flipped);
 
@@ -73,6 +75,20 @@ const Card = ({
       console.error(`Failed to update subtask ${subtaskId}:`, error);
     }
   };
+
+ const handleSubtaskDelete = async (subtaskId) => {
+  if (!window.confirm('Opravdu chcete smazat podúkol?')) {
+    return;
+  }
+
+  try {
+    await apiDelete(`/tasks/${subtaskId}`);
+    onUpdate?.({ parentTaskId: taskId, deletedSubtaskId: subtaskId });
+  } catch (error) {
+    console.error(`Failed to delete subtask ${subtaskId}:`, error);
+    alert('Nepodařilo se smazat subúkol.');
+  }
+};
 
   const handleDueDateChange = (date) => {
     setLocalDueDate(date);
@@ -143,6 +159,16 @@ const Card = ({
   const handleCloseDeleteConfirmationModal = () => setShowDeleteConfirmationModal(false);
 
   // Handlers for saving data from modals
+
+  const handleShowEditSubtaskTitleModal = (subtask) => {
+    setCurrentSubtaskToEdit(subtask);
+    setShowEditSubtaskTitleModal(true);
+  };
+  const handleCloseEditSubtaskTitleModal = () => {
+    setShowEditSubtaskTitleModal(false);
+    setCurrentSubtaskToEdit(null);
+  };
+
   const handleSaveTitle = (newTitle) => {
     onUpdate?.({ title: newTitle });
   };
@@ -153,6 +179,20 @@ const Card = ({
 
   const handleAddSubtask = (subtaskData) => {
     onCreateSubtask?.({ ...subtaskData, parentTaskId: taskId });
+  };
+
+  const handleSaveSubtaskTitle = async (newTitle) => {
+    if (!currentSubtaskToEdit) return;
+
+    try {
+      const updatedSubtask = await apiPut(`/tasks/${currentSubtaskToEdit._id}`, { title: newTitle });
+      // Voláme onUpdate s celým upraveným subtaskem, aby se aktualizoval stav v TaskIndex
+      onUpdate?.({ _id: taskId, subtask: updatedSubtask });
+      handleCloseEditSubtaskTitleModal();
+    } catch (error) {
+      console.error(`Failed to update subtask title for ${currentSubtaskToEdit._id}:`, error);
+      alert('Nepodařilo se aktualizovat název subúkolu.');
+    }
   };
 
   const handleAddNote = async (noteData) => {
@@ -277,15 +317,34 @@ const Card = ({
             <ul className='my-ul'>
               {initialSubtasks?.map((subtask) => (
                 <li key={subtask._id}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Form.Check
-                      type="checkbox"
-                      label={subtask.title}
-                      checked={subtask.isCompleted}
-                      onChange={() => handleSubtaskChange(subtask._id)}
-                    />
-                    <Trash size={12} className="ms-2" style={{ cursor: 'pointer', color: 'red' }} />
-                  </div>
+                  <Form.Check
+                    type="checkbox"
+                    checked={subtask.isCompleted}
+                    onChange={() => handleSubtaskChange(subtask._id)}
+                    label={
+                      <span>
+                        {subtask.title}
+                        <Pencil
+                          size={12}
+                          className="ms-2"
+                          style={{ cursor: 'pointer' }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleShowEditSubtaskTitleModal(subtask);
+                          }}
+                        />
+                        <Trash
+                          size={12}
+                          className="ms-2"
+                          style={{ cursor: 'pointer', color: 'red' }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleSubtaskDelete(subtask._id);
+                          }}
+                        />
+                      </span>
+                    }
+                  />
                 </li>
               ))}
             </ul>
@@ -365,6 +424,12 @@ const Card = ({
         show={showDeleteConfirmationModal}
         onHide={handleCloseDeleteConfirmationModal}
         onConfirm={handleDeleteTask}
+      />
+      <EditTitleModal
+        show={showEditSubtaskTitleModal}
+        onHide={handleCloseEditSubtaskTitleModal}
+        initialTitle={currentSubtaskToEdit ? currentSubtaskToEdit.title : ''}
+        onSave={handleSaveSubtaskTitle}
       />
     </div>
   );

@@ -20,37 +20,37 @@ const TaskIndex = () => {
   const [sortingOptions, setSortingOptions] = useState("DueDate");
 
   const fetchTasksWithSubtasks = async () => {
-  setLoading(true); 
+    setLoading(true);
 
-  try {
-    let url = '/tasks?parentTaskId=null';
-    if (sortingOptions === "Priority") {
-      url += '&sort=priority:desc,dueDate:asc,created:desc';
-    } else if (sortingOptions === "DueDate") {
-      url += '&sort=dueDate:asc,priority:desc,created:desc'; 
+    try {
+      let url = '/tasks?parentTaskId=null';
+      if (sortingOptions === "Priority") {
+        url += '&sort=priority:desc,dueDate:asc,created:desc';
+      } else if (sortingOptions === "DueDate") {
+        url += '&sort=dueDate:asc,priority:desc,created:desc';
+      }
+
+      const tasksData = await apiGet(url);
+
+      const tasksWithSubtasks = await Promise.all(
+        tasksData.map(async (task) => {
+          try {
+            const subtasks = await apiGet(`/tasks?parentTaskId=${task._id}&sort=created:asc`);
+            return { ...task, subtasks };
+          } catch (subtaskErr) {
+            console.error(`Failed to fetch subtasks for task ${task._id}:`, subtaskErr);
+            return { ...task, subtasks: [] };
+          }
+        })
+      );
+
+      setTasks(tasksWithSubtasks);
+    } catch (error) {
+      console.error('Failed to fetch tasks:', error);
+    } finally {
+      setLoading(false);
     }
-   
-    const tasksData = await apiGet(url); 
-    
-    const tasksWithSubtasks = await Promise.all(
-      tasksData.map(async (task) => {
-        try {
-          const subtasks = await apiGet(`/tasks?parentTaskId=${task._id}&sort=created:asc`);
-          return { ...task, subtasks };
-        } catch (subtaskErr) {
-          console.error(`Failed to fetch subtasks for task ${task._id}:`, subtaskErr);
-          return { ...task, subtasks: [] };
-        }
-      })
-    );
-
-    setTasks(tasksWithSubtasks);
-  } catch (error) {
-    console.error('Failed to fetch tasks:', error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchTasksWithSubtasks();
@@ -81,6 +81,20 @@ const TaskIndex = () => {
                 ...task,
                 subtasks: task.subtasks.map((subtask) =>
                   subtask._id === updateData.subtask._id ? updateData.subtask : subtask
+                ),
+              };
+            }
+            return task;
+          })
+        );
+      } else if (updateData.deletedSubtaskId) { 
+        setTasks((prevTasks) =>
+          prevTasks.map((task) => {
+            if (task._id === updateData.parentTaskId) { 
+              return {
+                ...task,
+                subtasks: task.subtasks.filter(
+                  (subtask) => subtask._id !== updateData.deletedSubtaskId
                 ),
               };
             }
