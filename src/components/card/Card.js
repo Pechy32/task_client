@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
+import { X, Pencil, Trash } from 'react-bootstrap-icons';
+
 import 'react-datepicker/dist/react-datepicker.css';
 import './card.css';
+
 import { formatToCET } from '../../utils/dateTimeFormatter.js';
 import { apiPut, apiGet, apiDelete } from '../../utils/api.js';
-import { X, Pencil, Trash } from 'react-bootstrap-icons';
+
 import EditTitleModal from './modal/EditTitleModal.js';
 import EditDescriptionModal from './modal/EditDescriptionModal.js';
 import AddSubtaskModal from './modal/AddSubtaskModal.js';
 import AddNoteModal from './modal/AddNoteModal.js';
 import DeleteConfirmationModal from './modal/DeleteConfirmationModal.js';
 import EditNoteModal from './modal/EditNoteModal.js';
+
 
 const Card = ({
   _id: taskId,
@@ -28,80 +32,37 @@ const Card = ({
   onCreateSubtask,
   onDeleteTask,
 }) => {
+
+  // =================================================================
+  // S T A T E   M A N A G E M E N T
+  // =================================================================
+
+  // Card UI State
   const [flipped, setFlipped] = useState(false);
   const [localDueDate, setLocalDueDate] = useState(initialDueDate ? new Date(initialDueDate) : null);
   const [localSolver, setLocalSolver] = useState(initialSolver || '');
+
+  // Data Fetching State
   const [solvers, setSolvers] = useState([]);
   const [loadingSolvers, setLoadingSolvers] = useState(true);
 
+  // Modal Visibility State
   const [showEditTitleModal, setShowEditTitleModal] = useState(false);
   const [showEditDescriptionModal, setShowEditDescriptionModal] = useState(false);
   const [showAddSubtaskModal, setShowAddSubtaskModal] = useState(false);
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
   const [showEditSubtaskTitleModal, setShowEditSubtaskTitleModal] = useState(false);
-  const [currentSubtaskToEdit, setCurrentSubtaskToEdit] = useState(null);
   const [showEditNoteModal, setShowEditNoteModal] = useState(false);
+
+  // State for Modal Data
+  const [currentSubtaskToEdit, setCurrentSubtaskToEdit] = useState(null);
   const [currentNoteToEdit, setCurrentNoteToEdit] = useState(null);
 
-  const handleFlip = () => setFlipped(!flipped);
 
-  const handleIsCompletedChange = async (event) => {
-    const updatedCompletion = event.target.checked; 
-    try {
-      const updatedTaskFromApi = await apiPut(`/tasks/${taskId}`, {
-        isCompleted: updatedCompletion,
-      });
-      onUpdate?.({ _id: taskId, isCompleted: updatedTaskFromApi.isCompleted });
-    } catch (error) {
-      console.error(`Failed to update task completion status:`, error);
-      alert('Nepodařilo se aktualizovat stav dokončení úkolu.');
-    }
-  };
-
-  const handleSubtaskChange = async (subtaskId) => {
-    const subtaskToUpdate = initialSubtasks.find(subtask => subtask._id === subtaskId);
-
-    if (!subtaskToUpdate) {
-      console.error(`Subtask with ID ${subtaskId} not found.`);
-      return;
-    }
-
-    const updatedCompletion = !subtaskToUpdate.isCompleted;
-
-    try {
-      const updatedSubtaskFromApi = await apiPut(`/tasks/${subtaskId}`, {
-        isCompleted: updatedCompletion,
-      });
-      onUpdate?.({ _id: taskId, subtask: updatedSubtaskFromApi });
-    } catch (error) {
-      console.error(`Failed to update subtask ${subtaskId}:`, error);
-    }
-  };
-
-  const handleSubtaskDelete = async (subtaskId) => {
-    if (!window.confirm('Opravdu chcete smazat podúkol?')) {
-      return;
-    }
-
-    try {
-      await apiDelete(`/tasks/${subtaskId}`);
-      onUpdate?.({ parentTaskId: taskId, deletedSubtaskId: subtaskId });
-    } catch (error) {
-      console.error(`Failed to delete subtask ${subtaskId}:`, error);
-      alert('Nepodařilo se smazat subúkol.');
-    }
-  };
-
-  const handleDueDateChange = (date) => {
-    setLocalDueDate(date);
-    onUpdate?.({ dueDate: date });
-  };
-
-  const handleRemoveDueDate = () => {
-    setLocalDueDate(null);
-    onUpdate?.({ dueDate: null });
-  };
+  // =================================================================
+  // S I D E   E F F E C T S
+  // =================================================================
 
   useEffect(() => {
     const fetchSolvers = async () => {
@@ -114,54 +75,59 @@ const Card = ({
         setLoadingSolvers(false);
       }
     };
-
     fetchSolvers();
   }, []);
 
-  // Helper functions for class names based on priority and due date
+
+  // =================================================================
+  // H E L P E R S   &   U T I L S
+  // =================================================================
+
   const getPriorityClassName = (priority) => {
+    // Returns a CSS class based on task priority for styling.
     switch (priority) {
-      case 'Low':
-        return 'priority-low-text';
-      case 'Medium':
-        return 'priority-medium-text';
-      case 'High':
-        return 'priority-high-text';
-      default:
-        return '';
+      case 'Low': return 'priority-low-text';
+      case 'Medium': return 'priority-medium-text';
+      case 'High': return 'priority-high-text';
+      default: return '';
     }
   };
 
   const getDueDateClassName = (dueDate) => {
-    if (!dueDate) {
-      return '';
-    }
+    // Returns a CSS class for the due date based on how close it is.
+    if (!dueDate) return '';
     const now = new Date();
     const dueDateObj = new Date(dueDate);
     const differenceInDays = (dueDateObj - now) / (1000 * 60 * 60 * 24);
 
-    if (differenceInDays < -0.5) {
-      return 'duedate-past';
-    } else if (differenceInDays < 3) {
-      return 'duedate-soon';
-    } else {
-      return '';
-    }
+    if (differenceInDays < -0.5) return 'duedate-past';
+    if (differenceInDays < 3) return 'duedate-soon';
+    return '';
   };
 
-  // Handlers for showing/hiding modals
+
+  // =================================================================
+  // E V E N T   H A N D L E R S
+  // =================================================================
+
+  // --- UI Handlers ---
+  const handleFlip = () => setFlipped(!flipped);
+
+  // --- Modal Control Handlers ---
   const handleShowEditTitleModal = () => setShowEditTitleModal(true);
   const handleCloseEditTitleModal = () => setShowEditTitleModal(false);
+
   const handleShowEditDescriptionModal = () => setShowEditDescriptionModal(true);
   const handleCloseEditDescriptionModal = () => setShowEditDescriptionModal(false);
+
   const handleShowAddSubtaskModal = () => setShowAddSubtaskModal(true);
   const handleCloseAddSubtaskModal = () => setShowAddSubtaskModal(false);
+
   const handleShowAddNoteModal = () => setShowAddNoteModal(true);
   const handleCloseAddNoteModal = () => setShowAddNoteModal(false);
+
   const handleShowDeleteConfirmationModal = () => setShowDeleteConfirmationModal(true);
   const handleCloseDeleteConfirmationModal = () => setShowDeleteConfirmationModal(false);
-
-  // Handlers for saving data from modals
 
   const handleShowEditSubtaskTitleModal = (subtask) => {
     setCurrentSubtaskToEdit(subtask);
@@ -176,48 +142,35 @@ const Card = ({
     setCurrentNoteToEdit({ index, text: note.note });
     setShowEditNoteModal(true);
   };
-
   const handleCloseEditNoteModal = () => {
     setShowEditNoteModal(false);
     setCurrentNoteToEdit(null);
   };
 
-  const handleSaveTitle = (newTitle) => {
-    onUpdate?.({ title: newTitle });
-  };
+  // --- Data & API Handlers ---
 
-  const handleSaveDescription = (newDescription) => {
-    onUpdate?.({ description: newDescription });
-  };
-
-  const handleAddSubtask = (subtaskData) => {
-    onCreateSubtask?.({ ...subtaskData, parentTaskId: taskId });
-  };
-
-  const handleSaveSubtaskTitle = async (newTitle) => {
-    if (!currentSubtaskToEdit) return;
-
+  const handleIsCompletedChange = async (event) => {
     try {
-      const updatedSubtask = await apiPut(`/tasks/${currentSubtaskToEdit._id}`, { title: newTitle });
-      // Voláme onUpdate s celým upraveným subtaskem, aby se aktualizoval stav v TaskIndex
-      onUpdate?.({ _id: taskId, subtask: updatedSubtask });
-      handleCloseEditSubtaskTitleModal();
+      const updatedTaskFromApi = await apiPut(`/tasks/${taskId}`, { isCompleted: event.target.checked });
+      onUpdate?.({ _id: taskId, isCompleted: updatedTaskFromApi.isCompleted });
     } catch (error) {
-      console.error(`Failed to update subtask title for ${currentSubtaskToEdit._id}:`, error);
-      alert('Nepodařilo se aktualizovat název subúkolu.');
+      console.error(`Failed to update task completion status:`, error);
     }
   };
 
-  const handleAddNote = async (noteData) => {
-    try {
-      const updatedNotes = [...(initialNotes || []), noteData];
-      await apiPut(`/tasks/${taskId}`, { notes: updatedNotes });
-      onUpdate?.({ notes: updatedNotes });
-    } catch (error) {
-      console.error('Failed to add note:', error);
-      alert('Nepodařilo se přidat poznámku.');
-    }
+  const handleDueDateChange = (date) => {
+    setLocalDueDate(date);
+    onUpdate?.({ dueDate: date });
   };
+
+  const handleRemoveDueDate = () => {
+    setLocalDueDate(null);
+    onUpdate?.({ dueDate: null });
+  };
+
+  const handleSaveTitle = (newTitle) => onUpdate?.({ title: newTitle });
+  const handleSaveDescription = (newDescription) => onUpdate?.({ description: newDescription });
+  const handleAddSubtask = (subtaskData) => onCreateSubtask?.({ ...subtaskData, parentTaskId: taskId });
 
   const handleDeleteTask = async () => {
     try {
@@ -226,26 +179,60 @@ const Card = ({
       onDeleteTask?.(taskId);
     } catch (error) {
       console.error('Failed to delete task:', error);
-      alert('Nepodařilo se smazat úkol.');
+    }
+  };
+
+  const handleSubtaskChange = async (subtaskId, isCompleted) => {
+    try {
+      const updatedSubtaskFromApi = await apiPut(`/tasks/${subtaskId}`, { isCompleted: !isCompleted });
+      onUpdate?.({ _id: taskId, subtask: updatedSubtaskFromApi });
+    } catch (error) {
+      console.error(`Failed to update subtask ${subtaskId}:`, error);
+    }
+  };
+
+  const handleSubtaskDelete = async (subtaskId) => {
+    if (!window.confirm('Opravdu chcete smazat podúkol?')) return;
+    try {
+      await apiDelete(`/tasks/${subtaskId}`);
+      onUpdate?.({ parentTaskId: taskId, deletedSubtaskId: subtaskId });
+    } catch (error) {
+      console.error(`Failed to delete subtask ${subtaskId}:`, error);
+    }
+  };
+
+  const handleSaveSubtaskTitle = async (newTitle) => {
+    if (!currentSubtaskToEdit) return;
+    try {
+      const updatedSubtask = await apiPut(`/tasks/${currentSubtaskToEdit._id}`, { title: newTitle });
+      onUpdate?.({ _id: taskId, subtask: updatedSubtask });
+      handleCloseEditSubtaskTitleModal();
+    } catch (error) {
+      console.error(`Failed to update subtask title for ${currentSubtaskToEdit._id}:`, error);
+    }
+  };
+
+  const handleAddNote = async (noteData) => {
+    try {
+      const updatedNotes = [...(initialNotes || []), noteData];
+      await apiPut(`/tasks/${taskId}`, { notes: updatedNotes });
+      onUpdate?.({ _id: taskId, notes: updatedNotes });
+    } catch (error) {
+      console.error('Failed to add note:', error);
     }
   };
 
   const handleSaveNote = async (newText) => {
     if (currentNoteToEdit === null) return;
-    const updatedNotes = initialNotes.map((note, index) => {
-      if (index === currentNoteToEdit.index) {
-        return { ...note, note: newText };
-      }
-      return note;
-    });
-
+    const updatedNotes = initialNotes.map((note, index) =>
+      index === currentNoteToEdit.index ? { ...note, note: newText } : note
+    );
     try {
       await apiPut(`/tasks/${taskId}`, { notes: updatedNotes });
       onUpdate?.({ _id: taskId, notes: updatedNotes });
       handleCloseEditNoteModal();
     } catch (error) {
       console.error('Failed to edit note:', error);
-      alert('Nepodařilo se upravit poznámku.');
     }
   };
 
@@ -256,15 +243,18 @@ const Card = ({
       onUpdate?.({ _id: taskId, notes: updatedNotes });
     } catch (error) {
       console.error('Failed to delete note:', error);
-      alert('Nepodařilo se smazat poznámku.');
     }
   };
 
 
+  // =================================================================
+  // R E N D E R
+  // =================================================================
+
   return (
     <div className={`task-card-container ${flipped ? 'flipped' : ''}`}>
       <div className="task-card">
-        {/* FRONT */}
+        {/* --- CARD FRONT --- */}
         <div className="task-card-front">
           <div className='task-card-header d-flex justify-content-center align-items-center'>
             <h5 className="task-card-title">
@@ -275,7 +265,6 @@ const Card = ({
 
           <div className="task-card-body">
             <div onClick={handleFlip} className='task-card-icon' />
-
             <Row>
               <Col>
                 <Form.Group>
@@ -289,14 +278,8 @@ const Card = ({
                       placeholderText="Select date"
                     />
                     {localDueDate && (
-                      <button
-                        type="button"
-                        className="ms-2 btn btn-sm btn-link p-0"
-                        onClick={handleRemoveDueDate}
-                        aria-label="Remove due date"
-                        style={{ color: 'red', cursor: 'pointer', margin: 0 }}
-                      >
-                        <X size={18} />
+                      <button type="button" className="ms-2 btn btn-sm btn-link p-0" onClick={handleRemoveDueDate}>
+                        <X size={16} color='red'/>
                       </button>
                     )}
                   </div>
@@ -307,16 +290,13 @@ const Card = ({
                   <Form.Label>Priority</Form.Label>
                   <Form.Select
                     value={initialPriority || ""}
-                    onChange={(e) => {
-                      const newValue = e.target.value === "" ? null : e.target.value;
-                      onUpdate?.({ priority: newValue });
-                    }}
+                    onChange={(e) => onUpdate?.({ priority: e.target.value || null })}
                     className={getPriorityClassName(initialPriority)}
                   >
-                    <option value="" className={getPriorityClassName("")}>Not Set</option>
-                    <option value="Low" className={getPriorityClassName("Low")}>Low</option>
-                    <option value="Medium" className={getPriorityClassName("Medium")}>Medium</option>
-                    <option value="High" className={getPriorityClassName("High")}>High</option>
+                    <option value="">Not Set</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
@@ -324,7 +304,7 @@ const Card = ({
 
             <Row className="mt-2">
               <Col>
-                <Form.Label>Completition</Form.Label>
+                <Form.Label>Completion</Form.Label>
                 <Form.Check
                   type="checkbox"
                   checked={isCompleted}
@@ -366,28 +346,18 @@ const Card = ({
                   <Form.Check
                     type="checkbox"
                     checked={subtask.isCompleted}
-                    onChange={() => handleSubtaskChange(subtask._id)}
+                    onChange={() => handleSubtaskChange(subtask._id, subtask.isCompleted)}
                     label={
                       <span>
                         {subtask.title}
-                        <Pencil
-                          size={12}
-                          className="ms-2"
-                          style={{ cursor: 'pointer' }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleShowEditSubtaskTitleModal(subtask);
-                          }}
-                        />
-                        <Trash
-                          size={12}
-                          className="ms-2"
-                          style={{ cursor: 'pointer', color: 'red' }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleSubtaskDelete(subtask._id);
-                          }}
-                        />
+                        <Pencil size={12} className="ms-2" style={{ cursor: 'pointer' }} onClick={(e) => {
+                          e.preventDefault();
+                          handleShowEditSubtaskTitleModal(subtask);
+                        }} />
+                        <Trash size={12} className="ms-2" style={{ cursor: 'pointer', color: 'red' }} onClick={(e) => {
+                          e.preventDefault();
+                          handleSubtaskDelete(subtask._id);
+                        }} />
                       </span>
                     }
                   />
@@ -397,30 +367,22 @@ const Card = ({
           </div>
 
           <div className='task-card-footer d-flex justify-content-between align-items-center'>
-            <Button variant="outline-primary" size="sm" onClick={handleShowAddSubtaskModal}>
-              Add Subtask
-            </Button>
+            <Button variant="outline-primary" size="sm" onClick={handleShowAddSubtaskModal}>Add Subtask</Button>
             <small className="ms-2">{created ? new Date(created).toLocaleDateString() : ""}</small>
-            <Trash size={20} className="ms-2" style={{ cursor: 'pointer', color: 'red' }} onClick={handleShowDeleteConfirmationModal} />
+            <Trash size={20} style={{ cursor: 'pointer', color: 'red' }} onClick={handleShowDeleteConfirmationModal} />
           </div>
         </div>
 
-        {/* BACK */}
+        {/* --- CARD BACK --- */}
         <div className="task-card-back">
           <div className='task-card-header'>
             <h5 className="task-card-title">{initialTitle}</h5>
           </div>
-
           <div className="task-card-body">
             <div onClick={handleFlip} className='task-card-icon' />
-
             <div>
               {initialDescription}
-              <Pencil
-                size={14}
-                style={{ cursor: 'pointer', marginLeft: '5px' }}
-                onClick={handleShowEditDescriptionModal}
-              />
+              <Pencil size={14} style={{ cursor: 'pointer', marginLeft: '5px' }} onClick={handleShowEditDescriptionModal} />
             </div>
             <hr />
             <ul className='my-ul'>
@@ -430,18 +392,8 @@ const Card = ({
                   <br />
                   <span>
                     {note.note}
-                    <Pencil
-                      size={12}
-                      className="ms-2"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => handleShowEditNoteModal(note, index)}
-                    />
-                    <Trash
-                      size={12}
-                      className="ms-2"
-                      style={{ cursor: 'pointer', color: 'red' }}
-                      onClick={() => handleDeleteNote(index)}
-                    />
+                    <Pencil size={12} className="ms-2" style={{ cursor: 'pointer' }} onClick={() => handleShowEditNoteModal(note, index)} />
+                    <Trash size={12} className="ms-2" style={{ cursor: 'pointer', color: 'red' }} onClick={() => handleDeleteNote(index)} />
                   </span>
                 </li>
               ))}
@@ -449,54 +401,20 @@ const Card = ({
           </div>
 
           <div className='task-card-footer d-flex justify-content-between align-items-center'>
-            <Button variant="outline-info" size="sm" onClick={handleShowAddNoteModal}>
-              Add Note
-            </Button>
+            <Button variant="outline-info" size="sm" onClick={handleShowAddNoteModal}>Add Note</Button>
             <small>{created ? new Date(created).toLocaleDateString() : ""}</small>
           </div>
         </div>
       </div>
 
-      {/* Modal windows */}
-      <EditTitleModal
-        show={showEditTitleModal}
-        onHide={handleCloseEditTitleModal}
-        initialTitle={initialTitle}
-        onSave={handleSaveTitle}
-      />
-      <EditDescriptionModal
-        show={showEditDescriptionModal}
-        onHide={handleCloseEditDescriptionModal}
-        initialDescription={initialDescription}
-        onSave={handleSaveDescription}
-      />
-      <AddSubtaskModal
-        show={showAddSubtaskModal}
-        onHide={handleCloseAddSubtaskModal}
-        onAdd={handleAddSubtask}
-      />
-      <AddNoteModal
-        show={showAddNoteModal}
-        onHide={handleCloseAddNoteModal}
-        onAdd={handleAddNote}
-      />
-      <DeleteConfirmationModal
-        show={showDeleteConfirmationModal}
-        onHide={handleCloseDeleteConfirmationModal}
-        onConfirm={handleDeleteTask}
-      />
-      <EditTitleModal
-        show={showEditSubtaskTitleModal}
-        onHide={handleCloseEditSubtaskTitleModal}
-        initialTitle={currentSubtaskToEdit ? currentSubtaskToEdit.title : ''}
-        onSave={handleSaveSubtaskTitle}
-      />
-      <EditNoteModal
-        show={showEditNoteModal}
-        onHide={handleCloseEditNoteModal}
-        initialText={currentNoteToEdit ? currentNoteToEdit.text : ''}
-        onSave={handleSaveNote}
-      />
+      {/* --- MODAL WINDOWS --- */}
+      <EditTitleModal show={showEditTitleModal} onHide={handleCloseEditTitleModal} initialTitle={initialTitle} onSave={handleSaveTitle} />
+      <EditDescriptionModal show={showEditDescriptionModal} onHide={handleCloseEditDescriptionModal} initialDescription={initialDescription} onSave={handleSaveDescription} />
+      <AddSubtaskModal show={showAddSubtaskModal} onHide={handleCloseAddSubtaskModal} onAdd={handleAddSubtask} />
+      <AddNoteModal show={showAddNoteModal} onHide={handleCloseAddNoteModal} onAdd={handleAddNote} />
+      <DeleteConfirmationModal show={showDeleteConfirmationModal} onHide={handleCloseDeleteConfirmationModal} onConfirm={handleDeleteTask} />
+      <EditTitleModal show={showEditSubtaskTitleModal} onHide={handleCloseEditSubtaskTitleModal} initialTitle={currentSubtaskToEdit ? currentSubtaskToEdit.title : ''} onSave={handleSaveSubtaskTitle} />
+      <EditNoteModal show={showEditNoteModal} onHide={handleCloseEditNoteModal} initialText={currentNoteToEdit ? currentNoteToEdit.text : ''} onSave={handleSaveNote} />
     </div>
   );
 };
