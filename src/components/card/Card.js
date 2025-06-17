@@ -11,6 +11,7 @@ import EditDescriptionModal from './modal/EditDescriptionModal.js';
 import AddSubtaskModal from './modal/AddSubtaskModal.js';
 import AddNoteModal from './modal/AddNoteModal.js';
 import DeleteConfirmationModal from './modal/DeleteConfirmationModal.js';
+import EditNoteModal from './modal/EditNoteModal.js';
 
 const Card = ({
   _id: taskId,
@@ -40,11 +41,13 @@ const Card = ({
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
   const [showEditSubtaskTitleModal, setShowEditSubtaskTitleModal] = useState(false);
   const [currentSubtaskToEdit, setCurrentSubtaskToEdit] = useState(null);
+  const [showEditNoteModal, setShowEditNoteModal] = useState(false);
+  const [currentNoteToEdit, setCurrentNoteToEdit] = useState(null);
 
   const handleFlip = () => setFlipped(!flipped);
 
   const handleIsCompletedChange = async (event) => {
-    const updatedCompletion = event.target.checked; // Get the new completion status from the checkbox
+    const updatedCompletion = event.target.checked; 
     try {
       const updatedTaskFromApi = await apiPut(`/tasks/${taskId}`, {
         isCompleted: updatedCompletion,
@@ -169,6 +172,16 @@ const Card = ({
     setCurrentSubtaskToEdit(null);
   };
 
+  const handleShowEditNoteModal = (note, index) => {
+    setCurrentNoteToEdit({ index, text: note.note });
+    setShowEditNoteModal(true);
+  };
+
+  const handleCloseEditNoteModal = () => {
+    setShowEditNoteModal(false);
+    setCurrentNoteToEdit(null);
+  };
+
   const handleSaveTitle = (newTitle) => {
     onUpdate?.({ title: newTitle });
   };
@@ -216,6 +229,37 @@ const Card = ({
       alert('Nepodařilo se smazat úkol.');
     }
   };
+
+  const handleSaveNote = async (newText) => {
+    if (currentNoteToEdit === null) return;
+    const updatedNotes = initialNotes.map((note, index) => {
+      if (index === currentNoteToEdit.index) {
+        return { ...note, note: newText };
+      }
+      return note;
+    });
+
+    try {
+      await apiPut(`/tasks/${taskId}`, { notes: updatedNotes });
+      onUpdate?.({ _id: taskId, notes: updatedNotes });
+      handleCloseEditNoteModal();
+    } catch (error) {
+      console.error('Failed to edit note:', error);
+      alert('Nepodařilo se upravit poznámku.');
+    }
+  };
+
+  const handleDeleteNote = async (noteIndex) => {
+    const updatedNotes = initialNotes.filter((_, index) => index !== noteIndex);
+    try {
+      await apiPut(`/tasks/${taskId}`, { notes: updatedNotes });
+      onUpdate?.({ _id: taskId, notes: updatedNotes });
+    } catch (error) {
+      console.error('Failed to delete note:', error);
+      alert('Nepodařilo se smazat poznámku.');
+    }
+  };
+
 
   return (
     <div className={`task-card-container ${flipped ? 'flipped' : ''}`}>
@@ -390,19 +434,13 @@ const Card = ({
                       size={12}
                       className="ms-2"
                       style={{ cursor: 'pointer' }}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        // Implement edit note functionality here
-                      }}
+                      onClick={() => handleShowEditNoteModal(note, index)}
                     />
                     <Trash
                       size={12}
                       className="ms-2"
                       style={{ cursor: 'pointer', color: 'red' }}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        // Implement delete note functionality here  
-                      }}
+                      onClick={() => handleDeleteNote(index)}
                     />
                   </span>
                 </li>
@@ -452,6 +490,12 @@ const Card = ({
         onHide={handleCloseEditSubtaskTitleModal}
         initialTitle={currentSubtaskToEdit ? currentSubtaskToEdit.title : ''}
         onSave={handleSaveSubtaskTitle}
+      />
+      <EditNoteModal
+        show={showEditNoteModal}
+        onHide={handleCloseEditNoteModal}
+        initialText={currentNoteToEdit ? currentNoteToEdit.text : ''}
+        onSave={handleSaveNote}
       />
     </div>
   );

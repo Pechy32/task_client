@@ -5,7 +5,7 @@ const EditTitleModal = ({ show, onHide, initialTitle, onSave }) => {
   const [localTitle, setLocalTitle] = useState(initialTitle);
 
   useEffect(() => {
-    setLocalTitle(initialTitle); // Aktualizace lokálního stavu při změně propu
+    setLocalTitle(initialTitle); // Actually update the local title when initialTitle changes
   }, [initialTitle]);
 
   const handleTitleChange = (event) => {

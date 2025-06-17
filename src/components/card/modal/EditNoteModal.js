@@ -1,0 +1,52 @@
+import { useState, useEffect } from 'react';
+import { Modal, Form, Button } from 'react-bootstrap';
+
+const EditNoteModal = ({ show, onHide, initialText, onSave, modalTitle }) => {
+  const [localText, setLocalText] = useState(initialText);
+
+  useEffect(() => {
+    setLocalText(initialText);
+  }, [initialText]);
+
+  const handleTextChange = (event) => {
+    setLocalText(event.target.value);
+  };
+
+  const handleSave = () => {
+    if (localText.trim() !== "") {
+      onSave(localText);
+      onHide();
+    } else {
+      alert("Poznámka nemůže být prázdná.");
+    }
+  };
+
+  return (
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton>
+        <Modal.Title>{modalTitle || 'Editovat poznámku'}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form.Group>
+          <Form.Label>Text poznámky</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={4}
+            value={localText}
+            onChange={handleTextChange}
+          />
+        </Form.Group>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onHide}>
+          Zrušit
+        </Button>
+        <Button variant="primary" onClick={handleSave}>
+          Uložit
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+};
+
+export default EditNoteModal;
