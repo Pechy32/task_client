@@ -17,12 +17,12 @@ const AddSolverModal = ({ show, onHide, onSave }) => {
     return (
         <Modal show={show} onHide={onHide}>
             <Modal.Header closeButton>
-                <Modal.Title>Přidat nového solvera</Modal.Title>
+                <Modal.Title>Add new solver</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicName">
-                        <Form.Label>Název solvera:</Form.Label>
+                        <Form.Label>Name</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Zadejte název solvera"
@@ -34,11 +34,11 @@ const AddSolverModal = ({ show, onHide, onSave }) => {
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
-                    Zrušit
+                <Button variant="secondary" onClick={onHide} style={{ width: '80px' }}>
+                    Cancel
                 </Button>
-                <Button variant="primary" onClick={handleSaveClick}>
-                    Uložit
+                <Button variant="primary" onClick={handleSaveClick} style={{ width: '80px' }}>
+                    Save
                 </Button>
             </Modal.Footer>
         </Modal>

@@ -20,11 +20,11 @@ const EditDescriptionModal = ({ show, onHide, initialDescription, onSave }) => {
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>Editovat popis úkolu</Modal.Title>
+        <Modal.Title>Edit description</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form.Group>
-          <Form.Label>Nový popis</Form.Label>
+          <Form.Label>New description</Form.Label>
           <Form.Control
             as="textarea"
             rows={3}
@@ -34,11 +34,11 @@ const EditDescriptionModal = ({ show, onHide, initialDescription, onSave }) => {
         </Form.Group>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Zrušit
+        <Button variant="secondary" onClick={onHide} style={{ width: '80px' }}>
+          Cancel
         </Button>
-        <Button variant="primary" onClick={handleSave}>
-          Uložit
+        <Button variant="primary" onClick={handleSave} style={{ width: '80px' }}>
+          Save
         </Button>
       </Modal.Footer>
     </Modal>

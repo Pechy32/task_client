@@ -14,12 +14,12 @@ const EditSolverModal = ({ show, onHide, solver, onSave }) => {
     return (
         <Modal show={show} onHide={onHide}>
             <Modal.Header closeButton>
-                <Modal.Title>Editovat solver</Modal.Title>
+                <Modal.Title>Edit solver</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form>
                     <Form.Group className="mb-3">
-                        <Form.Label>Nový název:</Form.Label>
+                        <Form.Label>New name</Form.Label>
                         <Form.Control
                             type="text"
                             value={editedName}
@@ -30,11 +30,11 @@ const EditSolverModal = ({ show, onHide, solver, onSave }) => {
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
-                    Zavřít
+                <Button variant="secondary" onClick={onHide} style={{ width: '80px' }}>
+                    Cancel
                 </Button>
-                <Button variant="primary" onClick={handleSave}>
-                    Uložit změny
+                <Button variant="primary" onClick={handleSave} style={{ width: '80px' }}>
+                    Save
                 </Button>
             </Modal.Footer>
         </Modal>

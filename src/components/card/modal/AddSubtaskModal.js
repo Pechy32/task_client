@@ -23,11 +23,11 @@ const AddSubtaskModal = ({ show, onHide, onAdd }) => {
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>Přidat nový subtask</Modal.Title>
+        <Modal.Title>Add subtask</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form.Group>
-          <Form.Label>Název subtasku</Form.Label>
+          <Form.Label>Subtask title</Form.Label>
           <Form.Control
             type="text"
             value={newSubtaskTitle}
@@ -35,16 +35,16 @@ const AddSubtaskModal = ({ show, onHide, onAdd }) => {
             maxLength={50}
           />
           <Form.Text className="text-muted">
-            Maximálně 50 znaků.
+            Max 50 chars
           </Form.Text>
         </Form.Group>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Zrušit
+        <Button variant="secondary" onClick={onHide} style={{ width: '80px' }}>
+          Cancel
         </Button>
-        <Button variant="primary" onClick={handleAdd}>
-          Přidat
+        <Button variant="primary" onClick={handleAdd} style={{ width: '80px' }}>
+          Add
         </Button>
       </Modal.Footer>
     </Modal>

@@ -26,11 +26,11 @@ const EditTitleModal = ({ show, onHide, initialTitle, onSave }) => {
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>Editovat název úkolu</Modal.Title>
+        <Modal.Title>Edit task title</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form.Group>
-          <Form.Label>Nový název</Form.Label>
+          <Form.Label>New title</Form.Label>
           <Form.Control
             type="text"
             value={localTitle}
@@ -38,16 +38,16 @@ const EditTitleModal = ({ show, onHide, initialTitle, onSave }) => {
             maxLength={50}
           />
           <Form.Text className="text-muted">
-            Maximálně 50 znaků.
+            Max 50 chars
           </Form.Text>
         </Form.Group>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Zrušit
+        <Button variant="secondary" onClick={onHide} style={{ width: '80px' }}>
+          Cancel
         </Button>
-        <Button variant="primary" onClick={handleSave}>
-          Uložit
+        <Button variant="primary" onClick={handleSave} style={{ width: '80px' }}>
+          Save
         </Button>
       </Modal.Footer>
     </Modal>

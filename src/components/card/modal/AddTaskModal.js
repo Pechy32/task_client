@@ -23,12 +23,12 @@ const AddTaskModal = ({
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>Přidat nový úkol</Modal.Title>
+        <Modal.Title>Add task</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
           <Form.Group className="mb-3">
-            <Form.Label>Název úkolu</Form.Label>
+            <Form.Label>Title</Form.Label>
             <Form.Control
               type="text"
               value={title}
@@ -36,11 +36,11 @@ const AddTaskModal = ({
               maxLength={50}
               required
             />
-            <Form.Text className="text-muted">Maximálně 50 znaků.</Form.Text>
+            <Form.Text className="text-muted">Max 50 chars</Form.Text>
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Popis</Form.Label>
+            <Form.Label>Description</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
@@ -50,7 +50,7 @@ const AddTaskModal = ({
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Datum dokončení</Form.Label>
+            <Form.Label>Due date</Form.Label>
             <DatePicker
               selected={dueDate}
               onChange={onDueDateChange}
@@ -61,7 +61,7 @@ const AddTaskModal = ({
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Priorita</Form.Label>
+            <Form.Label>Priority</Form.Label>
             <Form.Select
               value={priority}
               onChange={onPriorityChange}
@@ -74,7 +74,7 @@ const AddTaskModal = ({
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Řešitel</Form.Label>
+            <Form.Label>Solver</Form.Label>
             {loadingSolvers ? (
               <Form.Control readOnly defaultValue="Loading..." />
             ) : (
@@ -94,11 +94,11 @@ const AddTaskModal = ({
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Zrušit
+        <Button variant="secondary" onClick={onHide} style={{ width: '80px' }}>
+          Cancel
         </Button>
-        <Button variant="primary" onClick={onSubmit}>
-          Přidat
+        <Button variant="primary" onClick={onSubmit} style={{ width: '80px' }}>
+          Add
         </Button>
       </Modal.Footer>
     </Modal>

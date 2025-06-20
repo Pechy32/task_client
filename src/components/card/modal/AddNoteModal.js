@@ -21,11 +21,11 @@ const AddNoteModal = ({ show, onHide, onAdd }) => {
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>Přidat poznámku</Modal.Title>
+        <Modal.Title>Add note</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form.Group>
-          <Form.Label>Nová poznámka</Form.Label>
+          <Form.Label>New note</Form.Label>
           <Form.Control
             as="textarea"
             rows={3}
@@ -35,11 +35,11 @@ const AddNoteModal = ({ show, onHide, onAdd }) => {
         </Form.Group>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Zrušit
+        <Button variant="secondary" onClick={onHide} style={{ width: '80px' }}>
+          Cancel
         </Button>
-        <Button variant="primary" onClick={handleAdd}>
-          Přidat
+        <Button variant="primary" onClick={handleAdd} style={{ width: '80px' }}>
+          Add
         </Button>
       </Modal.Footer>
     </Modal>

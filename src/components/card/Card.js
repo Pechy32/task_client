@@ -192,7 +192,7 @@ const Card = ({
   };
 
   const handleSubtaskDelete = async (subtaskId) => {
-    if (!window.confirm('Opravdu chcete smazat podúkol?')) return;
+    if (!window.confirm('Are you sure you want to delete the subtask?')) return;
     try {
       await apiDelete(`/tasks/${subtaskId}`);
       onUpdate?.({ parentTaskId: taskId, deletedSubtaskId: subtaskId });
@@ -237,6 +237,7 @@ const Card = ({
   };
 
   const handleDeleteNote = async (noteIndex) => {
+    if (!window.confirm('Are you sure you want to delete the subtask?')) return;
     const updatedNotes = initialNotes.filter((_, index) => index !== noteIndex);
     try {
       await apiPut(`/tasks/${taskId}`, { notes: updatedNotes });
