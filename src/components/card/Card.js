@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
-import { X, Pencil, Trash } from 'react-bootstrap-icons';
+import { X, Pencil, Trash, Search } from 'react-bootstrap-icons';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './card.css';
@@ -15,6 +15,7 @@ import AddSubtaskModal from './modal/AddSubtaskModal.js';
 import AddNoteModal from './modal/AddNoteModal.js';
 import DeleteConfirmationModal from './modal/DeleteConfirmationModal.js';
 import EditNoteModal from './modal/EditNoteModal.js';
+import TaskDetailModal from './modal/TaskDetailModal.js';
 
 
 const Card = ({
@@ -54,6 +55,11 @@ const Card = ({
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
   const [showEditSubtaskTitleModal, setShowEditSubtaskTitleModal] = useState(false);
   const [showEditNoteModal, setShowEditNoteModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  // --- Modal Control Handlers ---
+  const handleShowDetailModal = () => setShowDetailModal(true);
+  const handleCloseDetailModal = () => setShowDetailModal(false);
 
   // State for Modal Data
   const [currentSubtaskToEdit, setCurrentSubtaskToEdit] = useState(null);
@@ -146,6 +152,16 @@ const Card = ({
     setShowEditNoteModal(false);
     setCurrentNoteToEdit(null);
   };
+
+  const createModalOpener = (modalOpener) => (...eventArgs) => {
+    modalOpener(...eventArgs);
+  };
+
+  const handleSolverUpdate = (newValue) => {
+    setLocalSolver(newValue);
+    onUpdate?.({ solver: newValue });
+  };
+
 
   // --- Data & API Handlers ---
 
@@ -266,11 +282,13 @@ const Card = ({
             <h5 className="task-card-title">
               {initialTitle}
               <Pencil size={14} className="ms-2" style={{ cursor: 'pointer' }} onClick={handleShowEditTitleModal} />
+
             </h5>
           </div>
 
           <div className="task-card-body">
-            <div onClick={handleFlip} className='task-card-icon' />
+            <div onClick={handleFlip} className='task-card-flip-icon' />
+            <Search size={14} className="ms-2, task-card-search-icon" style={{ cursor: 'pointer' }} onClick={handleShowDetailModal} />
             <Row>
               <Col>
                 <Form.Group>
@@ -281,11 +299,11 @@ const Card = ({
                       onChange={handleDueDateChange}
                       className={`form-control ${getDueDateClassName(localDueDate)}`}
                       dateFormat="dd.MM.yyyy"
-                      placeholderText="Select date"                  
+                      placeholderText="Select date"
                     />
                     {localDueDate && (
                       <button type="button" className="ms-2 btn btn-sm btn-link p-0" onClick={handleRemoveDueDate}>
-                        <X size={13} color='red'/>
+                        <X size={13} color='red' />
                       </button>
                     )}
                   </div>
@@ -297,7 +315,7 @@ const Card = ({
                   <Form.Select
                     value={initialPriority || ""}
                     onChange={(e) => onUpdate?.({ priority: e.target.value || null })}
-                    className={getPriorityClassName(initialPriority)}                   
+                    className={getPriorityClassName(initialPriority)}
                   >
                     <option value="">Not Set</option>
                     <option value="Low">Low</option>
@@ -330,7 +348,7 @@ const Card = ({
                         const newValue = e.target.value === "" ? null : e.target.value;
                         setLocalSolver(newValue);
                         onUpdate?.({ solver: newValue });
-                      }}                    
+                      }}
                     >
                       <option value="">Not Set</option>
                       {solvers.map((solverOption) => (
@@ -385,7 +403,7 @@ const Card = ({
             <h5 className="task-card-title">{initialTitle}</h5>
           </div>
           <div className="task-card-body">
-            <div onClick={handleFlip} className='task-card-icon' />
+            <div onClick={handleFlip} className='task-card-flip-icon' />
             <div>
               {initialDescription}
               <Pencil size={14} style={{ cursor: 'pointer', marginLeft: '5px' }} onClick={handleShowEditDescriptionModal} />
@@ -414,6 +432,41 @@ const Card = ({
       </div>
 
       {/* --- MODAL WINDOWS --- */}
+      <TaskDetailModal
+        show={showDetailModal}
+        onHide={handleCloseDetailModal}
+        task={{
+          _id: taskId,
+          title: initialTitle,
+          description: initialDescription,
+          dueDate: localDueDate,
+          priority: initialPriority,
+          isCompleted,
+          solver: localSolver,
+          subtasks: initialSubtasks,
+          notes: initialNotes,
+          created
+        }}
+        solvers={solvers}
+        loadingSolvers={loadingSolvers}
+        getDueDateClassName={getDueDateClassName}
+        getPriorityClassName={getPriorityClassName}
+        onUpdate={onUpdate}
+        onIsCompletedChange={handleIsCompletedChange}
+        onDueDateChange={handleDueDateChange}
+        onRemoveDueDate={handleRemoveDueDate}
+        onSolverUpdate={handleSolverUpdate}
+        onSubtaskChange={handleSubtaskChange}
+        onSubtaskDelete={handleSubtaskDelete}
+        onNoteDelete={handleDeleteNote}
+        openEditTitleModal={createModalOpener(handleShowEditTitleModal)}
+        openEditDescriptionModal={createModalOpener(handleShowEditDescriptionModal)}
+        openAddSubtaskModal={createModalOpener(handleShowAddSubtaskModal)}
+        openEditSubtaskModal={createModalOpener(handleShowEditSubtaskTitleModal)}
+        openAddNoteModal={createModalOpener(handleShowAddNoteModal)}
+        openEditNoteModal={createModalOpener(handleShowEditNoteModal)}
+        openDeleteConfirmationModal={createModalOpener(handleShowDeleteConfirmationModal)}
+      />
       <EditTitleModal show={showEditTitleModal} onHide={handleCloseEditTitleModal} initialTitle={initialTitle} onSave={handleSaveTitle} />
       <EditDescriptionModal show={showEditDescriptionModal} onHide={handleCloseEditDescriptionModal} initialDescription={initialDescription} onSave={handleSaveDescription} />
       <AddSubtaskModal show={showAddSubtaskModal} onHide={handleCloseAddSubtaskModal} onAdd={handleAddSubtask} />
