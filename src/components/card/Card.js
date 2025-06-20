@@ -159,11 +159,16 @@ const Card = ({
   };
 
   const handleDueDateChange = (date) => {
+    if (date < new Date().setHours(0, 0, 0, 0)) {
+      alert('Due date cannot be in the past.');
+      return;
+    }
     setLocalDueDate(date);
     onUpdate?.({ dueDate: date });
   };
 
   const handleRemoveDueDate = () => {
+    if (!window.confirm('Are you sure you want to remove the due date?')) return;
     setLocalDueDate(null);
     onUpdate?.({ dueDate: null });
   };
@@ -276,11 +281,11 @@ const Card = ({
                       onChange={handleDueDateChange}
                       className={`form-control ${getDueDateClassName(localDueDate)}`}
                       dateFormat="dd.MM.yyyy"
-                      placeholderText="Select date"
+                      placeholderText="Select date"                  
                     />
                     {localDueDate && (
                       <button type="button" className="ms-2 btn btn-sm btn-link p-0" onClick={handleRemoveDueDate}>
-                        <X size={16} color='red'/>
+                        <X size={13} color='red'/>
                       </button>
                     )}
                   </div>
@@ -292,7 +297,7 @@ const Card = ({
                   <Form.Select
                     value={initialPriority || ""}
                     onChange={(e) => onUpdate?.({ priority: e.target.value || null })}
-                    className={getPriorityClassName(initialPriority)}
+                    className={getPriorityClassName(initialPriority)}                   
                   >
                     <option value="">Not Set</option>
                     <option value="Low">Low</option>
@@ -325,7 +330,7 @@ const Card = ({
                         const newValue = e.target.value === "" ? null : e.target.value;
                         setLocalSolver(newValue);
                         onUpdate?.({ solver: newValue });
-                      }}
+                      }}                    
                     >
                       <option value="">Not Set</option>
                       {solvers.map((solverOption) => (
