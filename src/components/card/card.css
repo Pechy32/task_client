@@ -202,6 +202,9 @@ h5 {
   border-color: #28a745 !important; 
   width: 1.5em; 
   height: 1.5em; 
+  border-radius: 5px;
+  background-color: #fff !important;
+  background-image: none;
 }
 
 .custom-checkbox-lg-green .form-check-input:checked {

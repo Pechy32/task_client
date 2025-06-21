@@ -115,14 +115,21 @@ const TaskIndex = () => {
   };
 
   const handleCreateSubtask = async (subtaskData) => {
-    try {
-      await apiPost('/tasks', subtaskData);
-      fetchTasksWithSubtasks();
-    } catch (error) {
-      console.error('Failed to create subtask:', error);
-      alert('Nepodařilo se vytvořit subtask.');
-    }
-  };
+  try {
+    const newSubtask = await apiPost('/tasks', subtaskData);
+
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task._id === subtaskData.parentTaskId
+          ? { ...task, subtasks: [...task.subtasks, newSubtask] }
+          : task
+      )
+    );
+  } catch (error) {
+    console.error('Failed to create subtask:', error);
+    alert('Nepodařilo se vytvořit subtask.');
+  }
+};
 
   const handleDeleteTask = async (taskIdToDelete) => {
     try {

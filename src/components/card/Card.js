@@ -328,7 +328,7 @@ const Card = ({
 
             <Row className="mt-2">
               <Col>
-                <Form.Label>Completion</Form.Label>
+                <Form.Label>Completed</Form.Label>
                 <Form.Check
                   type="checkbox"
                   checked={isCompleted}
